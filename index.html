@@ -1,4 +1,5 @@
-<!-- coppa_case_v5.5.1 — Typography refinement: IM FELL English for body copy, Cormorant Garamond for controls/tables; removed Hogwarts · Sala Grande kicker. 16/09/2026 -->
+<!-- coppa_case_v5.6 — Stati Coppa semplificati Attivo/Congelato; inattività mensile automatica a 0 post; snapshot del contributo al congelamento; congelati separati dal roster attivo; record esclusi per congelati/inattivi. 16/09/2026 -->
+<!-- coppa_case_v5.5.2 — Typography refinement: IM FELL English for body copy, Cormorant Garamond for controls/tables; removed Hogwarts · Sala Grande kicker. 16/09/2026 -->
 <!-- coppa_case_v5.5 — Art direction UX/UI completa: hero senza sovrapposizioni, gerarchia record, pannelli e responsive rifiniti; logica v5.4.1 invariata. 16/09/2026 -->
 <!-- coppa_case_v5.4.1 — Record mensili live/definitivi, statistiche sempre visibili; 16/09/2026 -->
 <!-- coppa_case_v5 — Restyling completo Hogwarts / Hogwarts Legacy; sfondo Sala Gotica delle Quattro Clessidre; UX/UI rinnovata; logica v4 invariata. 16/09/2026 -->
@@ -193,6 +194,15 @@ button,.btn{font-weight:700;letter-spacing:.015em}
 .field label,th,.metric span{font-weight:700}
 .hero h1{margin-top:0}
 
+
+/* v5.6 — roster Attivi/Congelati e inattività mensile automatica */
+.panel-subhelp{margin:5px 0 0;max-width:920px}.roster-legend{display:flex;align-items:center;gap:7px 10px;flex-wrap:wrap;margin:10px 2px 12px;padding:8px 10px;border:1px solid rgba(98,74,35,.14);border-radius:10px;background:rgba(255,255,255,.26);font-size:.72rem;color:#756955}.participation-dot{width:8px;height:8px;border-radius:50%;display:inline-block}.active-dot{background:#527d5d;box-shadow:0 0 0 3px rgba(82,125,93,.12)}.idle-dot{background:#aa8a4b;box-shadow:0 0 0 3px rgba(170,138,75,.12)}
+.month-state-badge{display:inline-flex;align-items:center;gap:5px;margin-top:5px;padding:3px 7px;border-radius:999px;font-size:.62rem;font-weight:800;letter-spacing:.025em;border:1px solid}.month-state-badge::before{content:"";width:6px;height:6px;border-radius:50%}.month-state-badge.participating{color:#356346;border-color:rgba(53,99,70,.28);background:rgba(62,120,79,.08)}.month-state-badge.participating::before{background:#4f865f}.month-state-badge.idle{color:#765e2c;border-color:rgba(137,102,38,.26);background:rgba(156,119,47,.08)}.month-state-badge.idle::before{background:#a98643}.month-state-badge.frozen-month{color:#667078;border-color:rgba(90,103,113,.25);background:rgba(91,104,115,.07)}.month-state-badge.frozen-month::before{background:#7a858c}
+.status-control{min-width:112px}.status-control.active-status{border-color:#8f9f82;background:#f6f2e5}.status-control.frozen-status{border-color:#a5a7a2;background:#eceae3;color:#666}
+.frozen-roster{margin-top:16px;border:1px solid rgba(86,77,61,.22);border-radius:13px;background:rgba(83,76,65,.055);overflow:hidden}.frozen-roster>summary{list-style:none;cursor:pointer;display:grid;grid-template-columns:auto auto 1fr;align-items:center;gap:9px;padding:12px 14px;color:#514a3e;font-weight:850;user-select:none}.frozen-roster>summary::-webkit-details-marker{display:none}.frozen-roster>summary::before{content:"▸";font-size:.72rem;transition:transform .18s ease}.frozen-roster[open]>summary::before{transform:rotate(90deg)}.frozen-roster>summary span:first-of-type{font-family:Georgia,serif;font-size:1.02rem}.frozen-roster>summary small{font-weight:500;color:#817767;font-size:.69rem}.frozen-count{display:inline-grid;place-items:center;min-width:24px;height:22px;padding:0 7px;border-radius:999px;background:#6e6b64;color:#fff;font-size:.68rem}.frozen-inner{padding:0 12px 13px}.frozen-table-wrap{background:#f4efe4}.frozen-table{min-width:760px}.frozen-table td,.frozen-table th{white-space:normal}.frozen-table .pg-name{color:#625b50}.frozen-summary-points{font-weight:850;color:#6c604e}.reactivate-btn{white-space:nowrap}.frozen-empty{text-align:center!important;padding:20px!important;color:#817767!important}
+tr.month-idle td{background-image:linear-gradient(rgba(180,145,72,.028),rgba(180,145,72,.028))}tr.month-frozen td{background-image:linear-gradient(rgba(104,111,115,.035),rgba(104,111,115,.035))}
+@media(max-width:680px){.frozen-roster>summary{grid-template-columns:auto auto;gap:7px}.frozen-roster>summary small{grid-column:1/-1;padding-left:19px}.roster-legend{align-items:flex-start}.panel-subhelp{font-size:.75rem}}
+
 </style>
 </head>
 <body>
@@ -209,7 +219,7 @@ button,.btn{font-weight:700;letter-spacing:.015em}
       <div class="hero-seal" aria-hidden="true">H</div>
       <h1>Coppa delle Case</h1>
       <div class="hero-rule" aria-hidden="true"><span></span></div>
-      <p class="hero-sub">«Per il tempo che starete qui, la vostra Casa sarà la vostra famiglia.»</p>
+      <p class="hero-sub">«Per il tempo che starete qui, la vostra casa sarà la vostra famiglia.»</p>
     </div>
     <div class="hero-footer">
       <div class="hero-caption" aria-hidden="true"><span>Onore</span><span>Impegno</span><span>Lealtà</span><span>Ambizione</span></div>
@@ -254,15 +264,22 @@ button,.btn{font-weight:700;letter-spacing:.015em}
       <div class="algo-box" id="algoBox"></div>
     </section>
 
-    <section class="panel">
-      <div class="panel-head"><h2>Studenti</h2><span id="saveStatus" class="connection"></span></div>
+    <section class="panel students-panel">
+      <div class="panel-head"><div><h2>Studenti attivi</h2><p class="help panel-subhelp">Lo stato manuale è soltanto <b>Attivo</b> o <b>Congelato</b>. Un PG attivo con 0 post validi nel mese resta qui, ma è automaticamente inattivo ai fini della compensazione e dei record.</p></div><span id="saveStatus" class="connection"></span></div>
       <div class="filters">
         <div class="field search"><label>Cerca PG</label><input id="searchInput" type="text" placeholder="Nome del Personaggio"></div>
         <div class="field"><label>Casa</label><select id="houseFilter"><option value="">Tutte</option><option value="unassigned">Da assegnare</option><option value="grifondoro">Grifondoro</option><option value="tassorosso">Tassorosso</option><option value="corvonero">Corvonero</option><option value="serpeverde">Serpeverde</option></select></div>
-        <div class="field"><label>Visualizza</label><select id="statusFilter"><option value="all">Tutti</option><option value="active">Attivi nel mese</option><option value="inactive">Non attivi nel mese</option></select></div>
       </div>
-      <div style="height:10px"></div>
-      <div class="table-wrap"><table><thead><tr><th>PG</th><th>Casa</th><th>Stato dal mese</th><th>Post validi</th><th>Base</th><th>Stima Docenti</th><th>Mod. Stima/post</th><th>Punti Stima</th><th>Rendimento</th><th>+2 stessa Casa</th><th>Extra CB</th><th>Manuali Staff</th><th>Totale PG</th><th>Azioni</th></tr></thead><tbody id="pgBody"></tbody></table></div>
+      <div class="roster-legend"><span class="participation-dot active-dot"></span><span>almeno 1 post: conta nella compensazione</span><span class="participation-dot idle-dot"></span><span>0 post: inattivo nel mese, ma non congelato</span></div>
+      <div class="table-wrap"><table><thead><tr><th>PG</th><th>Casa</th><th>Stato</th><th>Post validi</th><th>Base</th><th>Stima Docenti</th><th>Mod. Stima/post</th><th>Punti Stima</th><th>Rendimento</th><th>+2 stessa Casa</th><th>Extra CB</th><th>Manuali Staff</th><th>Totale PG</th><th>Azioni</th></tr></thead><tbody id="pgBody"></tbody></table></div>
+
+      <details id="frozenDetails" class="frozen-roster">
+        <summary><span>Studenti congelati</span><span id="frozenCount" class="frozen-count">0</span><small>Non contano nella compensazione e non compaiono nei record.</small></summary>
+        <div class="frozen-inner">
+          <p class="help">Il contributo maturato prima del congelamento resta valido. Puoi riattivare un PG dal mese selezionato; da quel momento tornerà a contribuire normalmente.</p>
+          <div class="table-wrap frozen-table-wrap"><table class="frozen-table"><thead><tr><th>PG</th><th>Casa</th><th>Congelato da</th><th>Contributo conservato</th><th>Azioni</th></tr></thead><tbody id="frozenPgBody"></tbody></table></div>
+        </div>
+      </details>
     </section>
 
     <section class="panel"><div class="panel-head"><h2>Totali annuali</h2><span class="help" style="margin:0">Settembre–Giugno</span></div><div class="summary-grid" id="annualTotals"></div></section>
@@ -318,7 +335,7 @@ const firebaseConfig={apiKey:"AIzaSyCvd56bSEL02s2OY2PSk7uyFX-CYRB4Vz0",authDomai
 const app=initializeApp(firebaseConfig),db=getFirestore(app),auth=getAuth(app);
 const NARRATOR_UID="TFgqfVrFLjW5SwqRFXmEi8tDhtM2",PRIVATE_COLLECTION="coppa_case",PUBLIC_COLLECTION="coppa_case_pubblica",STAFF_SESSIONS="staff_edit_sessions";
 const HOUSES={grifondoro:{name:"Grifondoro",short:"G",color:"#751818",gem:"#d2a832"},tassorosso:{name:"Tassorosso",short:"T",color:"#c99b19",gem:"#3a3128"},corvonero:{name:"Corvonero",short:"C",color:"#214a82",gem:"#b88751"},serpeverde:{name:"Serpeverde",short:"S",color:"#235039",gem:"#c1c5c2"}};
-const HOUSE_KEYS=Object.keys(HOUSES),MONTH_NAMES=["Settembre","Ottobre","Novembre","Dicembre","Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno"],STATUS_LABELS={active:"Attivo",frozen:"Congelato",archived:"Archiviato",excluded:"Escluso"};
+const HOUSE_KEYS=Object.keys(HOUSES),MONTH_NAMES=["Settembre","Ottobre","Novembre","Dicembre","Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno"],STATUS_LABELS={active:"Attivo",frozen:"Congelato"};
 let state={yearId:"",docData:{},publicData:{},selectedMonth:"",publicLoaded:false,privateLoaded:false,authenticated:false,staffMode:false,dirty:false,saveTimer:null,activeAdjustPg:"",activeOverridePg:""};
 const $=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 function currentSchoolYearStart(d=new Date()){const m=d.getMonth(),y=d.getFullYear();return m>=8?y:y-1}
@@ -336,7 +353,8 @@ async function unlockStaff(password){const user=await ensureAuth();if(user.uid==
 async function hasRememberedStaff(){const user=await ensureAuth();if(user.uid===NARRATOR_UID)return true;return sessionStorage.getItem("ff_coppa_staff_ok")==="1"}
 function privateCupRef(){return doc(db,PRIVATE_COLLECTION,state.yearId)}
 function publicCupRef(){return doc(db,PUBLIC_COLLECTION,state.yearId)}
-function sanitizeDoc(raw){raw=raw&&typeof raw==="object"?raw:{};return {schemaVersion:1,yearId:state.yearId,summaries:raw.summaries&&typeof raw.summaries==="object"?raw.summaries:{},roster:raw.roster&&typeof raw.roster==="object"?raw.roster:{},adjustments:raw.adjustments&&typeof raw.adjustments==="object"?raw.adjustments:{},overrides:raw.overrides&&typeof raw.overrides==="object"?raw.overrides:{},settings:Object.assign({zeroHousePolicy:"legacy"},raw.settings||{})}}
+function sanitizeRoster(raw){const out={};Object.entries(raw&&typeof raw==="object"?raw:{}).forEach(([pg,value])=>{const r=value&&typeof value==="object"?Object.assign({},value):{},changes=r.statusChanges&&typeof r.statusChanges==="object"?r.statusChanges:{};r.statusChanges={};Object.entries(changes).forEach(([k,v])=>r.statusChanges[k]=v==="active"?"active":"frozen");r.freezeSnapshots=r.freezeSnapshots&&typeof r.freezeSnapshots==="object"?r.freezeSnapshots:{};r.house=String(r.house||"");out[pg]=r});return out}
+function sanitizeDoc(raw){raw=raw&&typeof raw==="object"?raw:{};return {schemaVersion:1,yearId:state.yearId,summaries:raw.summaries&&typeof raw.summaries==="object"?raw.summaries:{},roster:sanitizeRoster(raw.roster),adjustments:raw.adjustments&&typeof raw.adjustments==="object"?raw.adjustments:{},overrides:raw.overrides&&typeof raw.overrides==="object"?raw.overrides:{},settings:Object.assign({zeroHousePolicy:"legacy"},raw.settings||{})}}
 
 /* ================================================================
    IMPORTAZIONE INIZIALE COMPLETA DAGLI ELFI STUDENTI
@@ -371,7 +389,70 @@ function rawPostBonusEligible(post,b,posts){if(!post||!rawSafePostLink(post.link
 function rawBonusAltro(post,b,posts){if(!rawPostBonusEligible(post,b,posts))return "";if(b.modalita==="posts"&&b.valore==="variable"){const r=rawUsage(post,b);return b.variabileSu==="altro"&&r?String(r.altro||"").trim():""}return String(b.altro||"").trim()}
 function rawMonthBreakdown(raw,mese){const posts=Array.isArray(mese&&mese.posts)?mese.posts:[],summer=rawSummerKeySet(raw),bonuses=rawAllBonuses(mese),stimaValue=rawMonthStima(raw,mese),band=rawStimaBand(stimaValue),out={posts:0,base:0,stimaValue:stimaValue,stimaLabel:band.label,stimaModifier:band.modifier,stimaPoints:0,stima:0,role:0,manual:0,total:0};let ordinal=0;for(const post of posts){const automatic=!!(rawSchoolMonth(mese)&&post&&rawSafePostLink(post.link)&&!rawSpecialPost(post)&&!rawSummerPost(post,summer));if(automatic){ordinal++;out.posts++;out.base+=rawBaseByOrdinal(ordinal);out.stimaPoints+=band.modifier;if(post.houseRoleBonus===true&&post.houseRoleBonusExcluded!==true)out.role+=2}if(!rawSummerPost(post,summer)){for(const b of bonuses)out.manual+=rawHousePointsFromText(rawBonusAltro(post,b,posts))}}for(const b of bonuses){if(b.modalita==="manual"&&b.utilizziManuali>0)out.manual+=Math.max(0,parseInt(b.utilizziManuali,10)||0)*rawHousePointsFromText(b.altro)}out.stima=out.stimaPoints;out.total=out.base+out.stimaPoints+out.role+out.manual;return out}
 function summaryFromStudentDoc(pg,raw){const months={};for(const mese of (Array.isArray(raw&&raw.MESI)?raw.MESI:[])){const key=rawMonthKey(mese&&mese.nome,state.yearId);if(!key)continue;const b=rawMonthBreakdown(raw,mese),prev=months[key]||{posts:0,base:0,stimaValue:b.stimaValue,stimaLabel:b.stimaLabel,stimaModifier:b.stimaModifier,stimaPoints:0,stima:0,role:0,manual:0,total:0};prev.posts+=numeric(b.posts);prev.base+=numeric(b.base);prev.stimaValue=b.stimaValue;prev.stimaLabel=b.stimaLabel;prev.stimaModifier=b.stimaModifier;prev.stimaPoints+=numeric(b.stimaPoints);prev.stima=prev.stimaPoints;prev.role+=numeric(b.role);prev.manual+=numeric(b.manual);prev.total=prev.base+prev.stimaPoints+prev.role+prev.manual;months[key]=prev}return {schemaVersion:1,pgId:pg,schoolYear:state.yearId,updatedAt:raw&&raw._lastModifiedAt||null,months}}
-async function fullSyncFromStudentElves(force=false){if(!state.staffMode)return false;if(force&&!confirm("Rileggere tutti gli Elfi Studenti e ricostruire i riepiloghi della Coppa? Questa operazione effettua una lettura per ogni Studente, ma non viene eseguita durante le normali aperture."))return false;setSaveStatus("Sincronizzazione completa degli Elfi…","warn");const snap=await getDocs(collection(db,STUDENT_COLLECTION)),summaries={},roster=Object.assign({},state.docData.roster||{}),seen=new Set(),firstMonth=monthDefs(state.yearId)[0].key;let imported=0,archived=0;snap.forEach(d=>{const raw=d.data()||{},pg=normalizePg(raw._pgName||d.id);if(!pg||raw._deleted===true)return;seen.add(pg);summaries[pg]=summaryFromStudentDoc(pg,raw);const rec=roster[pg]&&typeof roster[pg]==="object"?roster[pg]:(roster[pg]={house:"",statusChanges:{}});rec.house=rec.house||"";rec.statusChanges=rec.statusChanges&&typeof rec.statusChanges==="object"?rec.statusChanges:{};if(!Object.keys(rec.statusChanges).length)rec.statusChanges[firstMonth]=raw._archiviato===true?"archived":"active";if(raw._archiviato===true)archived++;imported++});state.docData.summaries=summaries;state.docData.roster=roster;state.docData.settings=Object.assign({},state.docData.settings||{},{studentImportVersion:STUDENT_IMPORT_VERSION,studentImportAt:new Date().toISOString(),studentImportCount:imported});await updateDoc(privateCupRef(),{summaries,roster,settings:state.docData.settings});state.dirty=false;await publishPublicSnapshot(true);renderStaff();setSaveStatus(`Sincronizzati ${imported} Elfi${archived?` · ${archived} archiviati`:""}`,"ok");return true}
+function summaryMonthCount(summary){return summary&&summary.months&&typeof summary.months==="object"&&!Array.isArray(summary.months)?Object.keys(summary.months).length:0}
+function mergeSyncedStudentSummary(previous,fresh){
+  previous=previous&&typeof previous==="object"?previous:null;
+  fresh=fresh&&typeof fresh==="object"?fresh:null;
+  if(!fresh)return previous;
+  const freshMonths=fresh.months&&typeof fresh.months==="object"&&!Array.isArray(fresh.months)?fresh.months:{};
+  const oldMonths=previous&&previous.months&&typeof previous.months==="object"&&!Array.isArray(previous.months)?previous.months:{};
+  /* Una scansione che non riconosce alcun Mese NON può cancellare un riepilogo
+     già valido. È il principio fondamentale della risincronizzazione sicura. */
+  if(!Object.keys(freshMonths).length&&Object.keys(oldMonths).length)return previous;
+  if(!previous)return fresh;
+  return Object.assign({},previous,fresh,{months:Object.assign({},oldMonths,freshMonths)});
+}
+function storePreSyncSafetyCopy(){
+  try{
+    const safe=JSON.stringify({at:new Date().toISOString(),yearId:state.yearId,summaries:state.docData.summaries||{}},(k,v)=>v&&typeof v.toDate==="function"?v.toDate().toISOString():v);
+    localStorage.setItem(`ff_coppa_presync_${state.yearId}`,safe);
+  }catch(e){console.warn("Copia locale pre-sync non disponibile",e)}
+}
+async function fullSyncFromStudentElves(force=false){
+  if(!state.staffMode)return false;
+  if(force&&!confirm("Aggiornare i riepiloghi della Coppa leggendo tutti gli Elfi Studenti? La sincronizzazione è conservativa: aggiorna i dati trovati e non cancella i riepiloghi già presenti se un Elfo non restituisce Mesi riconoscibili. L'operazione effettua una lettura per ogni Studente."))return false;
+  setSaveStatus("Sincronizzazione sicura degli Elfi…","warn");
+  const snap=await getDocs(collection(db,STUDENT_COLLECTION));
+  if(snap.empty)throw new Error("Nessun Elfo Studente restituito: sincronizzazione annullata senza modifiche.");
+  storePreSyncSafetyCopy();
+  const previousSummaries=state.docData.summaries&&typeof state.docData.summaries==="object"?state.docData.summaries:{};
+  const summaries=Object.assign({},previousSummaries);
+  const roster=Object.assign({},state.docData.roster||{}),seen=new Set(),firstMonth=monthDefs(state.yearId)[0].key;
+  let imported=0,frozenImported=0,updated=0,preserved=0,newPg=0;
+  snap.forEach(d=>{
+    const raw=d.data()||{},pg=normalizePg(raw._pgName||d.id);
+    if(!pg||raw._deleted===true)return;
+    seen.add(pg);
+    const fresh=summaryFromStudentDoc(pg,raw),before=previousSummaries[pg];
+    if(before){
+      if(summaryMonthCount(fresh)===0&&summaryMonthCount(before)>0)preserved++;
+      else updated++;
+    }else newPg++;
+    summaries[pg]=mergeSyncedStudentSummary(before,fresh);
+    const rec=roster[pg]&&typeof roster[pg]==="object"?roster[pg]:(roster[pg]={house:"",statusChanges:{}});
+    rec.house=rec.house||"";
+    rec.statusChanges=rec.statusChanges&&typeof rec.statusChanges==="object"?rec.statusChanges:{};
+    if(!Object.keys(rec.statusChanges).length)rec.statusChanges[firstMonth]=raw._archiviato===true?"frozen":"active";
+    if(raw._archiviato===true)frozenImported++;
+    imported++;
+  });
+  state.docData.summaries=summaries;
+  state.docData.roster=roster;
+  state.docData.settings=Object.assign({},state.docData.settings||{}, {
+    studentImportVersion:STUDENT_IMPORT_VERSION,
+    studentImportAt:new Date().toISOString(),
+    studentImportCount:imported,
+    studentImportUpdated:updated,
+    studentImportPreserved:preserved,
+    studentImportNew:newPg
+  });
+  await updateDoc(privateCupRef(),{summaries,roster,settings:state.docData.settings});
+  state.dirty=false;
+  await publishPublicSnapshot(true);
+  renderStaff();
+  setSaveStatus(`Sincronizzati ${imported} Elfi · ${updated} aggiornati · ${newPg} nuovi${preserved?` · ${preserved} preservati`:""}${frozenImported?` · ${frozenImported} congelati da Elfo`:""}`,"ok");
+  return true;
+}
 async function ensureInitialStudentImport(){const v=parseInt(state.docData.settings&&state.docData.settings.studentImportVersion,10)||0;if(v>=STUDENT_IMPORT_VERSION)return false;return fullSyncFromStudentElves(false)}
 
 function emptyHouseTotals(){const out={};HOUSE_KEYS.forEach(h=>out[h]=0);return out}
@@ -388,11 +469,13 @@ function calculateMonthlyPublicStats(monthKey){
   const people=[];
   allPgNames().forEach(pg=>{
     const rec=state.docData.roster[pg];
-    if(!rec||!HOUSES[rec.house]||statusForMonth(rec,monthKey)!=="active")return;
+    /* Un PG oggi congelato non compare in nessun record; un Attivo con 0 post
+       non è eleggibile ai record del mese pur restando nel roster. */
+    if(!rec||!HOUSES[rec.house]||currentRosterStatus(rec)==="frozen"||statusForMonth(rec,monthKey)!=="active")return;
     const m=monthSummary(pg,monthKey),staff=adjustmentTotal(pg,monthKey);
+    if(numeric(m.posts)<=0)return;
     const points=numeric(m.base)+numeric(m.stimaPoints)+numeric(m.role)+numeric(m.manual)+staff;
     const extraPoints=numeric(m.manual)+Math.max(0,staff);
-    if(numeric(m.posts)===0&&points===0&&numeric(m.stimaPoints)===0&&numeric(m.role)===0&&extraPoints===0)return;
     people.push({pg,house:rec.house,points,posts:numeric(m.posts),stimaPoints:numeric(m.stimaPoints),rolePoints:numeric(m.role),extraPoints});
   });
   const pick=(arr,key,positiveOnly=false)=>{const pool=positiveOnly?arr.filter(x=>numeric(x[key])>0):arr.filter(x=>numeric(x[key])!==0||key==="points");return pool.length?pool.slice().sort((a,b)=>numeric(b[key])-numeric(a[key])||numeric(b.points)-numeric(a.points)||a.pg.localeCompare(b.pg,"it"))[0]:null};
@@ -477,8 +560,39 @@ async function loadPrivateYear(){const snap=await promiseTimeout(getDoc(privateC
 function queueSave(){if(!state.authenticated||!state.staffMode)return;state.dirty=true;setSaveStatus("Modifiche da salvare…","warn");if(state.saveTimer)clearTimeout(state.saveTimer);state.saveTimer=setTimeout(saveConfig,450)}
 async function saveConfig(){if(!state.authenticated||!state.staffMode||!state.dirty)return;state.saveTimer=null;state.dirty=false;setSaveStatus("Salvataggio…","warn");try{await updateDoc(privateCupRef(),{roster:state.docData.roster||{},adjustments:state.docData.adjustments||{},overrides:state.docData.overrides||{},settings:state.docData.settings||{}});await publishPublicSnapshot(false);setSaveStatus("Salvato","ok")}catch(e){console.error(e);state.dirty=true;setSaveStatus("Errore di salvataggio","bad")}}
 function setupYears(){const cur=currentSchoolYearStart(),sel=$("yearSelect");sel.innerHTML="";for(let y=cur+1;y>=cur-4;y--){const id=yearIdFromStart(y),o=document.createElement("option");o.value=id;o.textContent=`Anno ${yearLabel(id)}`;sel.appendChild(o)}state.yearId=yearIdFromStart(cur);sel.value=state.yearId;const md=monthDefs(state.yearId),now=new Date(),nk=`${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,"0")}`;state.selectedMonth=md.some(x=>x.key===nk)?nk:md[0].key}
-function statusForMonth(rec,monthKey){if(!rec||!rec.house)return "excluded";const changes=rec.statusChanges&&typeof rec.statusChanges==="object"?rec.statusChanges:{};let chosen="",status="excluded";Object.keys(changes).forEach(k=>{if(k<=monthKey&&k>=chosen){chosen=k;status=changes[k]}});return STATUS_LABELS[status]?status:"excluded"}
-function setStatusFromMonth(pg,monthKey,status){const rec=state.docData.roster[pg]||(state.docData.roster[pg]={house:"",statusChanges:{}});rec.statusChanges=rec.statusChanges||{};rec.statusChanges[monthKey]=status;queueSave();renderAll()}
+function normalizeRosterStatus(value){return value==="active"?"active":"frozen"}
+function statusStateForMonth(rec,monthKey){
+  const changes=rec&&rec.statusChanges&&typeof rec.statusChanges==="object"?rec.statusChanges:{};
+  let chosen="",status="active";
+  Object.keys(changes).sort().forEach(k=>{if(k<=monthKey&&k>=chosen){chosen=k;status=normalizeRosterStatus(changes[k])}});
+  return {status,changeKey:chosen};
+}
+function statusForMonth(rec,monthKey){return statusStateForMonth(rec,monthKey).status}
+function currentRosterStatus(rec){
+  const changes=rec&&rec.statusChanges&&typeof rec.statusChanges==="object"?rec.statusChanges:{};
+  const keys=Object.keys(changes).sort();
+  return keys.length?normalizeRosterStatus(changes[keys[keys.length-1]]):"active";
+}
+function latestFrozenSince(rec){
+  const changes=rec&&rec.statusChanges&&typeof rec.statusChanges==="object"?rec.statusChanges:{};
+  const keys=Object.keys(changes).sort();let last="";
+  for(const k of keys){if(normalizeRosterStatus(changes[k])==="frozen")last=k;else if(normalizeRosterStatus(changes[k])==="active")last=""}
+  return last;
+}
+function snapshotContribution(pg,monthKey){
+  const m=monthSummary(pg,monthKey);
+  return {posts:numeric(m.posts),base:numeric(m.base),stimaValue:m.stimaValue??null,stimaLabel:String(m.stimaLabel||""),stimaModifier:numeric(m.stimaModifier),stimaPoints:numeric(m.stimaPoints),stima:numeric(m.stimaPoints),role:numeric(m.role),manual:numeric(m.manual),staffDirect:adjustmentTotal(pg,monthKey),capturedAt:new Date().toISOString()};
+}
+function setStatusFromMonth(pg,monthKey,status){
+  status=normalizeRosterStatus(status);
+  const rec=state.docData.roster[pg]||(state.docData.roster[pg]={house:"",statusChanges:{},freezeSnapshots:{}});
+  rec.statusChanges=rec.statusChanges&&typeof rec.statusChanges==="object"?rec.statusChanges:{};
+  rec.freezeSnapshots=rec.freezeSnapshots&&typeof rec.freezeSnapshots==="object"?rec.freezeSnapshots:{};
+  const before=statusForMonth(rec,monthKey);
+  if(status==="frozen"&&before!=="frozen")rec.freezeSnapshots[monthKey]=snapshotContribution(pg,monthKey);
+  rec.statusChanges[monthKey]=status;
+  queueSave();renderAll();
+}
 function automaticMonthSummary(pg,monthKey){const s=state.docData.summaries&&state.docData.summaries[pg],m=s&&s.months&&s.months[monthKey];if(m&&typeof m==="object"){const sp=m.stimaPoints!=null?numeric(m.stimaPoints):numeric(m.stima);return Object.assign({posts:0,base:0,stimaValue:null,stimaLabel:"",stimaModifier:0,stimaPoints:sp,stima:sp,role:0,manual:0,total:0},m,{stimaPoints:sp,stima:sp})}return {posts:0,base:0,stimaValue:null,stimaLabel:"",stimaModifier:0,stimaPoints:0,stima:0,role:0,manual:0,total:0}}
 function monthOverride(pg,monthKey){const p=state.docData.overrides&&state.docData.overrides[pg],o=p&&p[monthKey];return o&&typeof o==="object"&&!Array.isArray(o)?o:null}
 function hasOwn(o,k){return !!o&&Object.prototype.hasOwnProperty.call(o,k)}
@@ -488,7 +602,37 @@ function overrideKeys(pg,monthKey){const o=monthOverride(pg,monthKey)||{};return
 function adjustmentsFor(pg,monthKey){const a=state.docData.adjustments&&state.docData.adjustments[pg];return a&&Array.isArray(a[monthKey])?a[monthKey]:[]}
 function adjustmentTotal(pg,monthKey){return adjustmentsFor(pg,monthKey).reduce((n,x)=>n+numeric(x.points),0)}
 function allPgNames(){const seen={};[state.docData.summaries,state.docData.roster,state.docData.adjustments,state.docData.overrides].forEach(o=>Object.keys(o||{}).forEach(k=>seen[k]=1));return Object.keys(seen).sort((a,b)=>a.localeCompare(b,"it",{sensitivity:"base"}))}
-function calculateMonth(monthKey){const houses={};HOUSE_KEYS.forEach(h=>houses[h]={house:h,activePgs:[],performance:0,elfoDirect:0,staffDirect:0,virtual:0,balancedPerformance:0,total:0,avgFloor:0,zeroFallback:false});allPgNames().forEach(pg=>{const rec=state.docData.roster[pg];if(!rec||!HOUSES[rec.house]||statusForMonth(rec,monthKey)!=="active")return;const m=monthSummary(pg,monthKey),h=houses[rec.house];h.activePgs.push(pg);h.performance+=numeric(m.base)+numeric(m.stimaPoints);h.elfoDirect+=numeric(m.role)+numeric(m.manual);h.staffDirect+=adjustmentTotal(pg,monthKey)});const maxActive=Math.max(0,...HOUSE_KEYS.map(h=>houses[h].activePgs.length));HOUSE_KEYS.forEach(k=>{const h=houses[k],n=h.activePgs.length;if(n>0){h.avgFloor=Math.floor(h.performance/n);h.virtual=Math.max(0,maxActive-n);h.balancedPerformance=h.performance+h.virtual*h.avgFloor}});const nonZero=HOUSE_KEYS.map(k=>houses[k]).filter(h=>h.activePgs.length>0),policy=(state.docData.settings&&state.docData.settings.zeroHousePolicy)||"legacy";HOUSE_KEYS.forEach(k=>{const h=houses[k];if(h.activePgs.length===0){h.virtual=maxActive;if(policy==="legacy"&&nonZero.length&&maxActive>1){const minBalanced=Math.min(...nonZero.map(x=>x.balancedPerformance));h.balancedPerformance=minBalanced*(maxActive-1);h.zeroFallback=true}else h.balancedPerformance=0}h.total=h.balancedPerformance+h.elfoDirect+h.staffDirect});return {houses,maxActive}}
+function effectiveMonthContribution(pg,monthKey){
+  const rec=state.docData.roster[pg]||{},stateAt=statusStateForMonth(rec,monthKey);
+  if(stateAt.status==="active"){
+    const m=monthSummary(pg,monthKey);
+    return {status:"active",posts:numeric(m.posts),base:numeric(m.base),stimaValue:m.stimaValue??null,stimaLabel:String(m.stimaLabel||""),stimaModifier:numeric(m.stimaModifier),stimaPoints:numeric(m.stimaPoints),role:numeric(m.role),manual:numeric(m.manual),staffDirect:adjustmentTotal(pg,monthKey),snapshot:false};
+  }
+  const snap=rec.freezeSnapshots&&typeof rec.freezeSnapshots==="object"?rec.freezeSnapshots[stateAt.changeKey]:null;
+  /* Nel mese esatto del congelamento conserviamo solo ciò che era già maturato
+     al momento del click. Nei mesi successivi il contributo è zero. */
+  if(stateAt.changeKey===monthKey&&snap&&typeof snap==="object")return {status:"frozen",posts:numeric(snap.posts),base:numeric(snap.base),stimaValue:snap.stimaValue??null,stimaLabel:String(snap.stimaLabel||""),stimaModifier:numeric(snap.stimaModifier),stimaPoints:numeric(snap.stimaPoints),role:numeric(snap.role),manual:numeric(snap.manual),staffDirect:numeric(snap.staffDirect),snapshot:true};
+  return {status:"frozen",posts:0,base:0,stimaValue:null,stimaLabel:"",stimaModifier:0,stimaPoints:0,role:0,manual:0,staffDirect:0,snapshot:false};
+}
+function calculateMonth(monthKey){
+  const houses={};HOUSE_KEYS.forEach(h=>houses[h]={house:h,activePgs:[],inactivePgs:[],performance:0,compPerformance:0,preservedPerformance:0,elfoDirect:0,staffDirect:0,virtual:0,balancedPerformance:0,compBalancedPerformance:0,total:0,avgFloor:0,zeroFallback:false});
+  allPgNames().forEach(pg=>{
+    const rec=state.docData.roster[pg];if(!rec||!HOUSES[rec.house])return;
+    const c=effectiveMonthContribution(pg,monthKey),h=houses[rec.house],perf=numeric(c.base)+numeric(c.stimaPoints);
+    /* Il contributo già maturato da un PG congelato rimane nel punteggio reale,
+       ma NON entra nella media usata per creare i PG virtuali. */
+    h.performance+=perf;h.elfoDirect+=numeric(c.role)+numeric(c.manual);h.staffDirect+=numeric(c.staffDirect);
+    if(c.status==="active"){
+      h.compPerformance+=perf;
+      if(numeric(c.posts)>0)h.activePgs.push(pg);else h.inactivePgs.push(pg);
+    }else h.preservedPerformance+=perf;
+  });
+  const maxActive=Math.max(0,...HOUSE_KEYS.map(h=>houses[h].activePgs.length));
+  HOUSE_KEYS.forEach(k=>{const h=houses[k],n=h.activePgs.length;if(n>0){h.avgFloor=Math.floor(h.compPerformance/n);h.virtual=Math.max(0,maxActive-n);h.compBalancedPerformance=h.compPerformance+h.virtual*h.avgFloor;h.balancedPerformance=h.performance+h.virtual*h.avgFloor}});
+  const nonZero=HOUSE_KEYS.map(k=>houses[k]).filter(h=>h.activePgs.length>0),policy=(state.docData.settings&&state.docData.settings.zeroHousePolicy)||"legacy";
+  HOUSE_KEYS.forEach(k=>{const h=houses[k];if(h.activePgs.length===0){h.virtual=maxActive;let fallback=0;if(policy==="legacy"&&nonZero.length&&maxActive>1){const minBalanced=Math.min(...nonZero.map(x=>x.compBalancedPerformance));fallback=minBalanced*(maxActive-1);h.zeroFallback=true}h.compBalancedPerformance=fallback;h.balancedPerformance=h.performance+fallback}h.total=h.balancedPerformance+h.elfoDirect+h.staffDirect});
+  return {houses,maxActive};
+}
 function calculateAnnual(){const totals={};HOUSE_KEYS.forEach(h=>totals[h]=0);monthDefs(state.yearId).forEach(m=>{const c=calculateMonth(m.key);HOUSE_KEYS.forEach(h=>totals[h]+=c.houses[h].total)});return totals}
 function rankings(totals){return HOUSE_KEYS.slice().sort((a,b)=>numeric(totals[b])-numeric(totals[a])).reduce((o,h,i)=>(o[h]=i+1,o),{})}
 function fmt(n){return new Intl.NumberFormat("it-IT",{maximumFractionDigits:0}).format(numeric(n))}
@@ -529,11 +673,41 @@ function renderPublicStats(){
   const mw=season.monthlyWinner;add(seasonHost,"Più vittorie mensili",mw&&mw.house?HOUSES[mw.house].name:"—",mw&&mw.house?`${fmt(mw.wins)} mesi in testa`:"Nessun dato","Conta soltanto i mesi con una Casa prima senza ex aequo",mw?.house||"","season","♜");
 }
 function renderPublic(){$("publicYearLabel").textContent=`Anno scolastico ${yearLabel(state.yearId)}`;renderMonthTabs();renderLeaderboard();renderPublicMonth();renderPublicStats()}
-function renderAlgorithm(){const def=monthDefs(state.yearId).find(x=>x.key===state.selectedMonth),calc=calculateMonth(state.selectedMonth),host=$("algoBox");$("monthTitle").textContent=def?`Riepilogo · ${def.label}`:"Riepilogo";host.innerHTML="";HOUSE_KEYS.forEach(k=>{const h=calc.houses[k],x=HOUSES[k],e=document.createElement("div");e.className="algo-house";e.style.cssText=houseStyle(k);e.innerHTML=`<b>${x.name}</b><div class="algo-line"><span>Rendimento reale</span><strong>${fmt(h.performance)}</strong></div><div class="algo-line"><span>PG attivi / virtuali</span><strong>${h.activePgs.length} / ${h.virtual}</strong></div><div class="algo-line"><span>Rendimento riequilibrato${h.zeroFallback?" *":""}</span><strong>${fmt(h.balancedPerformance)}</strong></div><div class="algo-line"><span>Extra Elfo</span><strong>${signed(h.elfoDirect)}</strong></div><div class="algo-line"><span>Manuali Staff</span><strong>${signed(h.staffDirect)}</strong></div><div class="algo-line total"><span>Totale mese</span><strong>${fmt(h.total)}</strong></div>${h.zeroFallback?'<div class="sync-age">* compensazione 0 PG come nel foglio Excel</div>':''}`;host.appendChild(e)})}
-function houseSelect(pg,current){const s=document.createElement("select");s.innerHTML='<option value="">— assegna —</option>'+HOUSE_KEYS.map(h=>`<option value="${h}" ${h===current?"selected":""}>${HOUSES[h].name}</option>`).join("");s.onchange=()=>{const rec=state.docData.roster[pg]||(state.docData.roster[pg]={house:"",statusChanges:{}});rec.house=s.value;if(s.value&&Object.keys(rec.statusChanges||{}).length===0)rec.statusChanges={[state.selectedMonth]:"active"};queueSave();renderAll()};return s}
-function statusSelect(pg,status,enabled){const s=document.createElement("select");s.disabled=!enabled;s.innerHTML=Object.keys(STATUS_LABELS).map(k=>`<option value="${k}" ${k===status?"selected":""}>${STATUS_LABELS[k]}</option>`).join("");s.onchange=()=>setStatusFromMonth(pg,state.selectedMonth,s.value);return s}
+function renderAlgorithm(){const def=monthDefs(state.yearId).find(x=>x.key===state.selectedMonth),calc=calculateMonth(state.selectedMonth),host=$("algoBox");$("monthTitle").textContent=def?`Riepilogo · ${def.label}`:"Riepilogo";host.innerHTML="";HOUSE_KEYS.forEach(k=>{const h=calc.houses[k],x=HOUSES[k],e=document.createElement("div");e.className="algo-house";e.style.cssText=houseStyle(k);e.innerHTML=`<b>${x.name}</b><div class="algo-line"><span>Rendimento reale</span><strong>${fmt(h.performance)}</strong></div><div class="algo-line"><span>PG attivi / inattivi (0 post)</span><strong>${h.activePgs.length} / ${h.inactivePgs.length}</strong></div><div class="algo-line"><span>PG virtuali</span><strong>${h.virtual}</strong></div><div class="algo-line"><span>Rendimento riequilibrato${h.zeroFallback?" *":""}</span><strong>${fmt(h.balancedPerformance)}</strong></div><div class="algo-line"><span>Extra Elfo</span><strong>${signed(h.elfoDirect)}</strong></div><div class="algo-line"><span>Manuali Staff</span><strong>${signed(h.staffDirect)}</strong></div><div class="algo-line total"><span>Totale mese</span><strong>${fmt(h.total)}</strong></div>${h.zeroFallback?'<div class="sync-age">* compensazione 0 PG come nel foglio Excel</div>':''}`;host.appendChild(e)})}
+function houseSelect(pg,current){const s=document.createElement("select");s.innerHTML='<option value="">— assegna —</option>'+HOUSE_KEYS.map(h=>`<option value="${h}" ${h===current?"selected":""}>${HOUSES[h].name}</option>`).join("");s.onchange=()=>{const rec=state.docData.roster[pg]||(state.docData.roster[pg]={house:"",statusChanges:{},freezeSnapshots:{}});rec.house=s.value;if(s.value&&Object.keys(rec.statusChanges||{}).length===0)rec.statusChanges={[state.selectedMonth]:"active"};queueSave();renderAll()};return s}
+function statusSelect(pg,current,enabled){const s=document.createElement("select");s.className=`status-control ${current==="frozen"?"frozen-status":"active-status"}`;s.disabled=!enabled;s.innerHTML=`<option value="active" ${current==="active"?"selected":""}>Attivo</option><option value="frozen" ${current==="frozen"?"selected":""}>Congelato</option>`;s.onchange=()=>{if(s.value==="frozen"&&!confirm(`Congelare ${pg} da ${state.selectedMonth}? Il contributo già maturato nel mese verrà conservato, mentre i nuovi post successivi non saranno conteggiati.`)){s.value=current;return}setStatusFromMonth(pg,state.selectedMonth,s.value)};return s}
 function ageText(summary){if(!summary||!summary.updatedAt)return "Nessun riepilogo Elfo";try{const d=summary.updatedAt.toDate?summary.updatedAt.toDate():new Date(summary.updatedAt);return `Elfo: ${d.toLocaleString("it-IT",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"})}`}catch(e){return "Riepilogo Elfo presente"}}
-function renderPgTable(){const body=$("pgBody"),q=$("searchInput").value.trim().toLocaleLowerCase("it-IT"),hf=$("houseFilter").value,sf=$("statusFilter").value;body.innerHTML="";allPgNames().forEach(pg=>{const rec=state.docData.roster[pg]||{},house=rec.house||"",status=statusForMonth(rec,state.selectedMonth),active=status==="active"&&!!HOUSES[house],m=monthSummary(pg,state.selectedMonth),ov=overrideKeys(pg,state.selectedMonth),adj=adjustmentTotal(pg,state.selectedMonth),stimaPts=numeric(m.stimaPoints),performance=numeric(m.base)+stimaPts,rowTotal=performance+numeric(m.role)+numeric(m.manual)+adj,summary=state.docData.summaries[pg];if(q&&!pg.toLocaleLowerCase("it-IT").includes(q))return;if(hf==="unassigned"&&house)return;if(hf&&hf!=="unassigned"&&house!==hf)return;if(sf==="active"&&!active)return;if(sf==="inactive"&&active)return;const tr=document.createElement("tr");if(!house)tr.classList.add("unassigned");if(!active)tr.classList.add("inactive");const nameTd=document.createElement("td");nameTd.innerHTML=`<span class="pg-name">${esc(pg)}</span><span class="sync-age">${esc(ageText(summary))}</span>${ov.any?'<span class="override-badge" title="Sono presenti dati rettificati dal Narratore per questo mese">✦ Rettifica Staff</span>':""}`;tr.appendChild(nameTd);const htd=document.createElement("td");htd.appendChild(houseSelect(pg,house));tr.appendChild(htd);const std=document.createElement("td");std.appendChild(statusSelect(pg,status,!!house));tr.appendChild(std);const vals=[numeric(m.posts),numeric(m.base),m.stimaValue===null||m.stimaValue===undefined?"—":numeric(m.stimaValue),numeric(m.stimaModifier),stimaPts,performance,numeric(m.role),numeric(m.manual),adj,rowTotal],overrideCells=[ov.posts,ov.posts,ov.stima,ov.stima,ov.posts||ov.stima,ov.posts||ov.stima,ov.role,ov.manual,false,ov.any];vals.forEach((v,i)=>{const td=document.createElement("td");if(i===2){td.textContent=v;td.title=m.stimaLabel||""}else if(i===3){td.textContent=signed(v)+" / post"}else{td.textContent=(i>=4)?signed(v):fmt(v)};const nv=typeof v==="number"?v:0;td.className=nv>0&&i>=3?"num-pos":nv<0?"num-neg":"num-muted";if(overrideCells[i]){td.classList.add("staff-override");const a=m._automatic||{};const autoVals=[a.posts,a.base,a.stimaValue,a.stimaModifier,a.stimaPoints,numeric(a.base)+numeric(a.stimaPoints),a.role,a.manual,null,null];if(i<8)td.title=(td.title?td.title+" · ":"")+`Automatico Elfo: ${autoVals[i]??"—"}`}tr.appendChild(td)});const act=document.createElement("td"),wrap=document.createElement("div");wrap.className="row-actions";const bc=document.createElement("button");bc.className="btn small override";bc.textContent=ov.any?"✎ Rettifica":"✎ Correggi dati";bc.onclick=()=>openOverride(pg);const br=document.createElement("button");br.className="btn small primary";br.textContent="＋ Punti Casa";br.onclick=()=>openAdjust(pg,"role_spesa");wrap.append(bc,br);act.appendChild(wrap);tr.appendChild(act);body.appendChild(tr)});if(!body.children.length){const tr=document.createElement("tr");tr.innerHTML='<td colspan="14" style="text-align:center;padding:22px;color:#756a58">Nessun PG corrisponde ai filtri.</td>';body.appendChild(tr)}}
+function monthLabelFromKey(key){const d=monthDefs(state.yearId).find(x=>x.key===key);return d?d.label:key||"—"}
+function countedSeasonContribution(pg){let total=0;monthDefs(state.yearId).forEach(md=>{const rec=state.docData.roster[pg];if(!rec||!HOUSES[rec.house])return;const c=effectiveMonthContribution(pg,md.key);total+=numeric(c.base)+numeric(c.stimaPoints)+numeric(c.role)+numeric(c.manual)+numeric(c.staffDirect)});return total}
+function appendPgDataCells(tr,m,ov,adj){const stimaPts=numeric(m.stimaPoints),performance=numeric(m.base)+stimaPts,rowTotal=performance+numeric(m.role)+numeric(m.manual)+numeric(adj),vals=[numeric(m.posts),numeric(m.base),m.stimaValue===null||m.stimaValue===undefined?"—":numeric(m.stimaValue),numeric(m.stimaModifier),stimaPts,performance,numeric(m.role),numeric(m.manual),numeric(adj),rowTotal],overrideCells=[ov.posts,ov.posts,ov.stima,ov.stima,ov.posts||ov.stima,ov.posts||ov.stima,ov.role,ov.manual,false,ov.any];vals.forEach((v,i)=>{const td=document.createElement("td");if(i===2){td.textContent=v;td.title=m.stimaLabel||""}else if(i===3){td.textContent=signed(v)+" / post"}else{td.textContent=(i>=4)?signed(v):fmt(v)};const nv=typeof v==="number"?v:0;td.className=nv>0&&i>=3?"num-pos":nv<0?"num-neg":"num-muted";if(overrideCells[i]){td.classList.add("staff-override");const a=m._automatic||{};const autoVals=[a.posts,a.base,a.stimaValue,a.stimaModifier,a.stimaPoints,numeric(a.base)+numeric(a.stimaPoints),a.role,a.manual,null,null];if(i<8)td.title=(td.title?td.title+" · ":"")+`Automatico Elfo: ${autoVals[i]??"—"}`}tr.appendChild(td)})}
+function renderPgTable(){
+  const body=$("pgBody"),frozenBody=$("frozenPgBody"),q=$("searchInput").value.trim().toLocaleLowerCase("it-IT"),hf=$("houseFilter").value;body.innerHTML="";frozenBody.innerHTML="";
+  let activeShown=0,frozenShown=0,frozenTotal=0;
+  allPgNames().forEach(pg=>{
+    const rec=state.docData.roster[pg]||{},house=rec.house||"",current=currentRosterStatus(rec),summary=state.docData.summaries[pg];
+    if(current==="frozen")frozenTotal++;
+    if(q&&!pg.toLocaleLowerCase("it-IT").includes(q))return;if(hf==="unassigned"&&house)return;if(hf&&hf!=="unassigned"&&house!==hf)return;
+    if(current==="frozen"){
+      const tr=document.createElement("tr"),since=latestFrozenSince(rec),season=countedSeasonContribution(pg);tr.className="frozen-row";
+      const n=document.createElement("td");n.innerHTML=`<span class="pg-name">${esc(pg)}</span><span class="sync-age">${esc(ageText(summary))}</span>`;tr.appendChild(n);
+      const h=document.createElement("td");h.textContent=HOUSES[house]?.name||"Da assegnare";tr.appendChild(h);
+      const fs=document.createElement("td");fs.textContent=monthLabelFromKey(since);tr.appendChild(fs);
+      const pts=document.createElement("td");pts.innerHTML=`<span class="frozen-summary-points">${fmt(season)} punti</span>`;tr.appendChild(pts);
+      const act=document.createElement("td"),b=document.createElement("button");b.className="btn small primary reactivate-btn";b.textContent=`Riattiva da ${monthDefs(state.yearId).find(x=>x.key===state.selectedMonth)?.name||"questo mese"}`;b.onclick=()=>setStatusFromMonth(pg,state.selectedMonth,"active");act.appendChild(b);tr.appendChild(act);frozenBody.appendChild(tr);frozenShown++;return;
+    }
+    const effective=statusStateForMonth(rec,state.selectedMonth),c=effectiveMonthContribution(pg,state.selectedMonth),m=effective.status==="active"?monthSummary(pg,state.selectedMonth):Object.assign({},c,{_automatic:{},_override:null,_hasOverride:false}),ov=overrideKeys(pg,state.selectedMonth),adj=effective.status==="active"?adjustmentTotal(pg,state.selectedMonth):numeric(c.staffDirect),participating=effective.status==="active"&&numeric(c.posts)>0;
+    const tr=document.createElement("tr");if(!house)tr.classList.add("unassigned");if(effective.status==="frozen")tr.classList.add("month-frozen");else if(!participating)tr.classList.add("month-idle");
+    const nameTd=document.createElement("td");let badge=effective.status==="frozen"?'<span class="month-state-badge frozen-month">Congelato nel mese</span>':participating?'<span class="month-state-badge participating">Attivo nel mese</span>':'<span class="month-state-badge idle">Inattivo nel mese · 0 post</span>';nameTd.innerHTML=`<span class="pg-name">${esc(pg)}</span><span class="sync-age">${esc(ageText(summary))}</span>${badge}${ov.any?'<span class="override-badge" title="Sono presenti dati rettificati dal Narratore per questo mese">✦ Rettifica Staff</span>':""}`;tr.appendChild(nameTd);
+    const htd=document.createElement("td");htd.appendChild(houseSelect(pg,house));tr.appendChild(htd);
+    const std=document.createElement("td");std.appendChild(statusSelect(pg,"active",!!house));tr.appendChild(std);
+    appendPgDataCells(tr,m,ov,adj);
+    const act=document.createElement("td"),wrap=document.createElement("div");wrap.className="row-actions";const bc=document.createElement("button");bc.className="btn small override";bc.textContent=ov.any?"✎ Rettifica":"✎ Correggi dati";bc.onclick=()=>openOverride(pg);const br=document.createElement("button");br.className="btn small primary";br.textContent="＋ Punti Casa";br.onclick=()=>openAdjust(pg,"role_spesa");wrap.append(bc,br);act.appendChild(wrap);tr.appendChild(act);body.appendChild(tr);activeShown++;
+  });
+  if(!activeShown){const tr=document.createElement("tr");tr.innerHTML='<td colspan="14" style="text-align:center;padding:22px;color:#756a58">Nessun PG attivo corrisponde ai filtri.</td>';body.appendChild(tr)}
+  if(!frozenShown){const tr=document.createElement("tr");tr.innerHTML='<td colspan="5" class="frozen-empty">Nessun PG congelato corrisponde ai filtri.</td>';frozenBody.appendChild(tr)}
+  $("frozenCount").textContent=String(frozenTotal);
+  if(q&&frozenShown>0)$("frozenDetails").open=true;
+}
 function renderAnnual(){const totals=calculateAnnual(),r=rankings(totals),host=$("annualTotals");host.innerHTML="";HOUSE_KEYS.slice().sort((a,b)=>r[a]-r[b]).forEach(h=>{const x=HOUSES[h],e=document.createElement("div");e.className="metric";e.style.borderLeft=`5px solid ${x.color}`;e.innerHTML=`<span>${r[h]}° · ${x.name}</span><b>${fmt(totals[h])} Punti</b>`;host.appendChild(e)})}
 function renderStaff(){if(!state.staffMode)return;$("zeroPolicy").value=(state.docData.settings&&state.docData.settings.zeroHousePolicy)||"legacy";renderAlgorithm();renderPgTable();renderAnnual()}
 function renderAll(){renderPublic();if(state.staffMode)renderStaff()}
@@ -547,8 +721,8 @@ function openAdjust(pg,preferredType="correzione"){state.activeAdjustPg=pg;$("ad
 function renderAdjustList(){const host=$("adjustList"),list=adjustmentsFor(state.activeAdjustPg,state.selectedMonth);host.innerHTML="";if(!list.length){host.innerHTML='<div class="help">Nessun Punto manuale registrato per questo mese.</div>';return}list.forEach(x=>{const e=document.createElement("div"),url=safeLink(x.link);e.className="adjust-item";e.innerHTML=`<div class="adjust-points ${numeric(x.points)<0?"num-neg":"num-pos"}">${signed(x.points)}</div><div><b>${esc(typeLabel(x.type))}</b><div class="sync-age">${esc(x.note||"")}</div>${url?`<a class="adjust-link" href="${esc(url)}" target="_blank" rel="noopener noreferrer">Apri fonte ↗</a>`:""}</div>`;const b=document.createElement("button");b.className="btn small danger";b.textContent="Rimuovi";b.onclick=()=>{const pg=state.activeAdjustPg,a=state.docData.adjustments[pg]||{},arr=Array.isArray(a[state.selectedMonth])?a[state.selectedMonth]:[];a[state.selectedMonth]=arr.filter(y=>y.id!==x.id);queueSave();renderAdjustList();renderAll()};e.appendChild(b);host.appendChild(e)})}
 function pushAdjustment(pg,month,type,points,note,link){state.docData.adjustments[pg]=state.docData.adjustments[pg]||{};const arr=state.docData.adjustments[pg][month]||(state.docData.adjustments[pg][month]=[]);arr.push({id:`adj_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,6)}`,type,points,note:String(note||"").trim().slice(0,220),link:safeLink(link)});queueSave();renderAll()}
 function addAdjustment(){const pg=state.activeAdjustPg,pts=parseInt($("adjustPoints").value,10);if(!pg||!Number.isFinite(pts)){alert("Inserisci un numero di Punti Casa valido.");return}pushAdjustment(pg,state.selectedMonth,$("adjustType").value,pts,$("adjustNote").value,$("adjustLink").value);$("adjustNote").value="";$("adjustLink").value="";renderAdjustList()}
-function addManualPg(){const pg=normalizePg($("newPgName").value);if(!pg){alert("Inserisci il nome del PG.");return}const house=$("newPgHouse").value,rec=state.docData.roster[pg]||(state.docData.roster[pg]={house:"",statusChanges:{}});rec.house=house;rec.statusChanges=rec.statusChanges||{};if(!Object.keys(rec.statusChanges).length)rec.statusChanges[state.selectedMonth]="active";queueSave();$("newPgName").value="";$("addPgOverlay").classList.remove("show");renderAll()}
-function exportCsv(){const rows=[["Mese","Casa","Rendimento reale","PG attivi","PG virtuali","Rendimento riequilibrato","Extra Elfo","Manuali Staff","Totale"]];monthDefs(state.yearId).forEach(m=>{const c=calculateMonth(m.key);HOUSE_KEYS.forEach(h=>{const x=c.houses[h];rows.push([m.label,HOUSES[h].name,x.performance,x.activePgs.length,x.virtual,x.balancedPerformance,x.elfoDirect,x.staffDirect,x.total])})});const annual=calculateAnnual();rows.push([], ["ANNUALE"]);HOUSE_KEYS.forEach(h=>rows.push(["",HOUSES[h].name,"","","","","","",annual[h]]));const csv=rows.map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(";")).join("\r\n"),blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`Coppa_${state.yearId}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+function addManualPg(){const pg=normalizePg($("newPgName").value);if(!pg){alert("Inserisci il nome del PG.");return}const house=$("newPgHouse").value,rec=state.docData.roster[pg]||(state.docData.roster[pg]={house:"",statusChanges:{},freezeSnapshots:{}});rec.house=house;rec.statusChanges=rec.statusChanges||{};rec.freezeSnapshots=rec.freezeSnapshots&&typeof rec.freezeSnapshots==="object"?rec.freezeSnapshots:{};if(!Object.keys(rec.statusChanges).length)rec.statusChanges[state.selectedMonth]="active";queueSave();$("newPgName").value="";$("addPgOverlay").classList.remove("show");renderAll()}
+function exportCsv(){const rows=[["Mese","Casa","Rendimento reale","PG attivi (>=1 post)","PG virtuali","Rendimento riequilibrato","Extra Elfo","Manuali Staff","Totale"]];monthDefs(state.yearId).forEach(m=>{const c=calculateMonth(m.key);HOUSE_KEYS.forEach(h=>{const x=c.houses[h];rows.push([m.label,HOUSES[h].name,x.performance,x.activePgs.length,x.virtual,x.balancedPerformance,x.elfoDirect,x.staffDirect,x.total])})});const annual=calculateAnnual();rows.push([], ["ANNUALE"]);HOUSE_KEYS.forEach(h=>rows.push(["",HOUSES[h].name,"","","","","","",annual[h]]));const csv=rows.map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(";")).join("\r\n"),blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`Coppa_${state.yearId}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
 async function enterStaff(){state.authenticated=true;state.staffMode=true;await loadPrivateYear();$("staffDashboard").classList.remove("hidden");$("staffEntryBtn").classList.add("hidden");setSaveStatus("Gestione attiva","ok");renderStaff();try{await ensureInitialStudentImport()}catch(e){console.error(e);setSaveStatus("Sincronizzazione iniziale non riuscita","bad")}await publishPublicSnapshot(false);$("staffDashboard").scrollIntoView({behavior:"smooth",block:"start"})}
 async function requestStaff(){try{if(await hasRememberedStaff()){await enterStaff();return}}catch(e){}$("loginError").textContent="";$("loginOverlay").classList.add("show");setTimeout(()=>$("staffPassword").focus(),50)}
 function exitStaff(){state.staffMode=false;$("staffDashboard").classList.add("hidden");$("staffEntryBtn").classList.remove("hidden");window.scrollTo({top:0,behavior:"smooth"})}
@@ -558,7 +732,7 @@ $("yearSelect").onchange=async e=>{state.yearId=e.target.value;const defs=monthD
 $("staffEntryBtn").onclick=requestStaff;$("exitStaffBtn").onclick=exitStaff;
 $("loginBtn").onclick=async()=>{const p=$("staffPassword").value;$("loginError").textContent="";try{await unlockStaff(p);$("staffPassword").value="";$("loginOverlay").classList.remove("show");await enterStaff()}catch(e){console.error(e);$("loginError").textContent="Password Staff non valida o sessione non disponibile."}};
 $("staffPassword").addEventListener("keydown",e=>{if(e.key==="Enter")$("loginBtn").click()});$("loginClose").onclick=()=>$("loginOverlay").classList.remove("show");$("loginOverlay").onclick=e=>{if(e.target===$("loginOverlay"))$("loginOverlay").classList.remove("show")};
-$("zeroPolicy").onchange=e=>{state.docData.settings.zeroHousePolicy=e.target.value;queueSave();renderAll()};$("searchInput").oninput=renderPgTable;$("houseFilter").onchange=renderPgTable;$("statusFilter").onchange=renderPgTable;
+$("zeroPolicy").onchange=e=>{state.docData.settings.zeroHousePolicy=e.target.value;queueSave();renderAll()};$("searchInput").oninput=renderPgTable;$("houseFilter").onchange=renderPgTable;
 $("adjustClose").onclick=()=>$("adjustOverlay").classList.remove("show");$("adjustAdd").onclick=addAdjustment;$("adjustOverlay").onclick=e=>{if(e.target===$("adjustOverlay"))$("adjustOverlay").classList.remove("show")};
 $("overrideClose").onclick=()=>$("overrideOverlay").classList.remove("show");$("overrideSave").onclick=saveOverride;$("overrideReset").onclick=resetOverride;$("overrideOverlay").onclick=e=>{if(e.target===$("overrideOverlay"))$("overrideOverlay").classList.remove("show")};
 $("syncAllBtn").onclick=async()=>{try{await fullSyncFromStudentElves(true)}catch(e){console.error(e);setSaveStatus("Risincronizzazione non riuscita","bad")}};
