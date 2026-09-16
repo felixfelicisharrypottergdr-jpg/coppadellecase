@@ -1,4 +1,4 @@
-<!-- coppa_case_v5.4 — Record mensili live/definitivi, statistiche sempre visibili; 16/09/2026 -->
+<!-- coppa_case_v5.4.1 — Record mensili live/definitivi, statistiche sempre visibili; 16/09/2026 -->
 <!-- coppa_case_v5 — Restyling completo Hogwarts / Hogwarts Legacy; sfondo Sala Gotica delle Quattro Clessidre; UX/UI rinnovata; logica v4 invariata. 16/09/2026 -->
 <!DOCTYPE html>
 <html lang="it">
@@ -105,7 +105,7 @@ select:hover,input:hover,textarea:hover{border-color:#c9aa64}select:focus,input:
       <div class="hero-kicker">Hogwarts · Sala Grande</div>
       <h1>Coppa delle Case</h1>
       <div class="hero-rule" aria-hidden="true"><span></span></div>
-      <p class="hero-sub">«Per il tempo che starete qui, la vostra Casa sarà la vostra famiglia.»</p>
+      <p class="hero-sub">«Per il tempo che starete qui, la vostra casa sarà la vostra famiglia.»</p>
     </div>
     <div class="hero-caption" aria-hidden="true">Onore · Impegno · Lealtà · Ambizione</div>
     <div id="connection" class="connection">Caricamento della Coppa…</div>
@@ -389,7 +389,15 @@ function fmt(n){return new Intl.NumberFormat("it-IT",{maximumFractionDigits:0}).
 function signed(n){n=numeric(n);return n>0?`+${fmt(n)}`:fmt(n)}
 function houseStyle(h){const x=HOUSES[h];return `--hc:${x.color};--gem:${x.gem}`}
 function renderMonthTabs(){const host=$("monthTabs");host.innerHTML="";monthDefs(state.yearId).forEach(m=>{const b=document.createElement("button");b.className="month-tab"+(m.key===state.selectedMonth?" active":"");b.textContent=m.name;b.onclick=()=>{state.selectedMonth=m.key;renderAll()};host.appendChild(b)})}
-function renderLeaderboard(){const annual=(state.publicData&&state.publicData.annual)||emptyHouseTotals(),monthTotals=(state.publicData&&state.publicData.months&&state.publicData.months[state.selectedMonth])||emptyHouseTotals(),ranks=rankings(annual),max=Math.max(1,...HOUSE_KEYS.map(h=>annual[h])),host=$("leaderboard");host.innerHTML="";HOUSE_KEYS.slice().sort((a,b)=>ranks[a]-ranks[b]).forEach(h=>{const x=HOUSES[h],fill=Math.max(5,Math.round((annual[h]/max)*100)),d=document.createElement("article");d.className="house-card"+(ranks[h]===1?" winner":"");d.style.cssText=houseStyle(h)+`;--fill:${fill}%`;d.innerHTML=`<div class="rank">${ranks[h]}°</div><div class="house-top"><div class="crest">${x.short}</div><div><div class="house-name">${x.name}</div><div class="house-meta">${ranks[h]===1?"In testa alla Coppa":"Classifica annuale"}</div></div></div><div class="house-total">${fmt(annual[h])}</div><div class="house-meta">Punti Casa</div><div class="house-month-chip">${signed(monthTotals[h])} nel mese selezionato</div><div class="hourglass"></div>`;host.appendChild(d)})}
+/* Riempimento clessidra proporzionale al VOLUME della sagoma, non alla sola altezza.
+   La camera interna e' il poligono CSS usato da .hourglass::before: la larghezza
+   varia linearmente tra 84 -> 36 -> 22 -> 36 -> 84. Invertiamo l'area cumulativa
+   dal basso con una ricerca binaria: 50% dei punti = 50% dell'area colorata. */
+function hourglassWidthAt(y){y=Math.max(0,Math.min(100,Number(y)||0));if(y<=43)return 84-(48/43)*y;if(y<=50)return 36-2*(y-43);if(y<=57)return 22+2*(y-50);return 36+(48/43)*(y-57)}
+function hourglassArea(a,b){a=Math.max(0,Math.min(100,Number(a)||0));b=Math.max(0,Math.min(100,Number(b)||0));if(b<a)[a,b]=[b,a];const cuts=[0,43,50,57,100];let area=0;for(let i=0;i<cuts.length-1;i++){const lo=Math.max(a,cuts[i]),hi=Math.min(b,cuts[i+1]);if(hi<=lo)continue;area+=(hourglassWidthAt(lo)+hourglassWidthAt(hi))*(hi-lo)/2}return area}
+const HOURGLASS_TOTAL_AREA=hourglassArea(0,100);
+function hourglassFillForRatio(ratio){ratio=Math.max(0,Math.min(1,Number(ratio)||0));if(ratio<=0)return 0;if(ratio>=1)return 100;const target=HOURGLASS_TOTAL_AREA*ratio;let lo=0,hi=100;for(let i=0;i<28;i++){const mid=(lo+hi)/2,area=hourglassArea(100-mid,100);if(area<target)lo=mid;else hi=mid}return Math.round(((lo+hi)/2)*10)/10}
+function renderLeaderboard(){const annual=(state.publicData&&state.publicData.annual)||emptyHouseTotals(),monthTotals=(state.publicData&&state.publicData.months&&state.publicData.months[state.selectedMonth])||emptyHouseTotals(),ranks=rankings(annual),max=Math.max(0,...HOUSE_KEYS.map(h=>numeric(annual[h]))),host=$("leaderboard");host.innerHTML="";HOUSE_KEYS.slice().sort((a,b)=>ranks[a]-ranks[b]).forEach(h=>{const x=HOUSES[h],ratio=max>0?numeric(annual[h])/max:0,fill=hourglassFillForRatio(ratio),d=document.createElement("article");d.className="house-card"+(ranks[h]===1?" winner":"");d.style.cssText=houseStyle(h)+`;--fill:${fill}%`;d.innerHTML=`<div class="rank">${ranks[h]}°</div><div class="house-top"><div class="crest">${x.short}</div><div><div class="house-name">${x.name}</div><div class="house-meta">${ranks[h]===1?"In testa alla Coppa":"Classifica annuale"}</div></div></div><div class="house-total">${fmt(annual[h])}</div><div class="house-meta">Punti Casa</div><div class="house-month-chip">${signed(monthTotals[h])} nel mese selezionato</div><div class="hourglass" title="Riempimento proporzionale ai Punti Casa"></div>`;host.appendChild(d)})}
 function renderPublicMonth(){const def=monthDefs(state.yearId).find(x=>x.key===state.selectedMonth),totals=(state.publicData&&state.publicData.months&&state.publicData.months[state.selectedMonth])||emptyHouseTotals(),ranks=rankings(totals),host=$("publicMonthRank");$("publicMonthTitle").textContent=def?`Andamento · ${def.label}`:"Andamento del mese";host.innerHTML="";HOUSE_KEYS.slice().sort((a,b)=>ranks[a]-ranks[b]).forEach(h=>{const x=HOUSES[h],e=document.createElement("div");e.className="month-rank-card";e.style.cssText=houseStyle(h);e.innerHTML=`<em>${ranks[h]}°</em><span>${x.name}</span><b>${fmt(totals[h])} punti</b>`;host.appendChild(e)})}
 function renderPublicStats(){
   const defs=monthDefs(state.yearId),def=defs.find(x=>x.key===state.selectedMonth),all=(state.publicData&&state.publicData.stats)||emptyPublicStats(),st=(all.months&&all.months[state.selectedMonth])||emptyMonthlyStats(),host=$("publicStats"),seasonHost=$("seasonStats");
