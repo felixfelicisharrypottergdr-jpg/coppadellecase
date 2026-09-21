@@ -237,6 +237,101 @@ tr.month-idle td{background-image:linear-gradient(rgba(180,145,72,.028),rgba(180
   }
 }
 
+
+/* =====================================================================
+   v6.1 — Hero compatto e cornici riallineate
+   Solo UI: nessuna modifica a calcoli, Elfo Studenti o letture Firebase.
+   ===================================================================== */
+.hero{
+  min-height:565px;
+  border:1px solid rgba(226,195,117,.50);
+  border-radius:22px;
+  box-shadow:
+    0 24px 70px rgba(0,0,0,.52),
+    inset 0 0 0 1px rgba(255,255,255,.028);
+}
+.hero::before{
+  inset:10px;
+  border-color:rgba(231,207,145,.22);
+  border-radius:14px;
+}
+.hero-copy{
+  transform:translateY(-6px);
+  margin:4px auto 0;
+  padding:18px 18px 10px;
+  min-height:276px;
+  max-width:930px;
+}
+.hero h1{
+  margin:0 0 3px;
+}
+.hero-rule{
+  margin:10px auto 9px;
+}
+.hero-footer{
+  transform:none;
+  margin-top:0;
+  padding:0 24px 24px;
+}
+.hero-caption{
+  margin:0 auto;
+}
+.connection{
+  margin:6px auto 0;
+}
+
+/* I due grandi riquadri ora sono separati e allineati sugli stessi bordi. */
+.public-shell{
+  margin:14px 0 0;
+  padding:27px 28px 31px;
+  border:1px solid rgba(226,195,117,.48);
+  border-radius:22px;
+  box-shadow:
+    0 24px 65px rgba(0,0,0,.48),
+    inset 0 0 0 1px rgba(255,255,255,.025);
+}
+.public-shell::before{
+  inset:8px;
+  border:1px solid rgba(222,191,113,.14);
+  border-radius:14px;
+}
+
+/* Card della classifica: bordo più leggibile ma meno "scatola nella scatola". */
+.house-card{
+  border:1px solid rgba(226,195,117,.20);
+  border-radius:16px;
+  box-shadow:
+    0 12px 30px rgba(0,0,0,.32),
+    inset 0 1px 0 rgba(255,255,255,.028);
+}
+.house-card:hover{
+  border-color:rgba(232,207,138,.38);
+}
+.house-card.winner{
+  border-color:rgba(237,211,141,.62);
+}
+
+/* Responsive: mantiene la stessa gerarchia senza ricreare il grande vuoto. */
+@media(max-width:760px){
+  .hero{min-height:510px}
+  .hero-copy{
+    transform:none;
+    min-height:245px;
+    margin-top:0;
+    padding:22px 13px 10px;
+  }
+  .hero-footer{padding:0 12px 22px}
+  .public-shell{
+    margin:10px 0 0;
+    padding:21px 12px 18px;
+    border-radius:16px;
+  }
+}
+@media(max-width:460px){
+  .hero{min-height:535px}
+  .hero-footer{padding-bottom:20px}
+}
+
 </style>
 </head>
 <body>
@@ -250,7 +345,6 @@ tr.month-idle td{background-image:linear-gradient(rgba(180,145,72,.028),rgba(180
       <div class="staff-entry"><button id="staffEntryBtn" class="btn" type="button">⚙ Gestione Narratore</button></div>
     </div>
     <div class="hero-copy">
-      <div class="hero-seal" aria-hidden="true">H</div>
       <h1>Coppa delle Case</h1>
       <div class="hero-rule" aria-hidden="true"><span></span></div>
       <p class="hero-sub">«Per il tempo che starete qui, la vostra Casa sarà la vostra famiglia.»</p>
