@@ -854,6 +854,64 @@ body::before{
   }
 }
 
+
+/* =====================================================================
+   v6.4.1 — Hero ancora più basso + sfondo rialzato
+   ===================================================================== */
+body::before{
+  background-position:center 10% !important;
+}
+
+.hero{
+  min-height:362px !important;
+}
+.hero-copy{
+  min-height:158px !important;
+  padding:2px 18px 2px !important;
+}
+.hero h1{
+  font-size:clamp(2.9rem,5.25vw,5.15rem) !important;
+}
+.hero-rule{
+  margin:6px auto 5px !important;
+}
+.hero-footer{
+  padding:0 18px 8px !important;
+}
+.public-shell{
+  margin-top:6px !important;
+}
+
+@media(max-width:1180px) and (min-width:761px){
+  body::before{
+    background-position:center 9% !important;
+  }
+  .hero{
+    min-height:374px !important;
+  }
+  .hero-copy{
+    min-height:162px !important;
+  }
+}
+
+@media(max-width:760px){
+  body::before{
+    background-position:center 7% !important;
+  }
+  .hero{
+    min-height:410px !important;
+  }
+  .hero-copy{
+    min-height:154px !important;
+  }
+}
+
+@media(max-width:460px){
+  .hero{
+    min-height:422px !important;
+  }
+}
+
 </style>
 </head>
 <body>
