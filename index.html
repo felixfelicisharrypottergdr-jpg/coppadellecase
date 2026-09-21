@@ -845,7 +845,7 @@ tr.month-idle td{background-image:linear-gradient(rgba(180,145,72,.028),rgba(180
     </section>
 
     <section class="panel"><div class="panel-head"><h2>Totali annuali</h2><span class="help" style="margin:0">Settembre–Giugno</span></div><div class="summary-grid" id="annualTotals"></div></section>
-    <p class="footer-note">I dati riservati della Coppa sono separati dalla classifica visibile ai Player. Roster, riepiloghi individuali, correzioni e fonti restano accessibili soltanto al Narratore.</p>
+    <p class="footer-note">Il registro pubblico mostra soltanto Nome PG, Casa, Stima, Post validi e Punti Casa personali. Rettifiche, note Staff, fonti e strumenti di gestione restano accessibili soltanto al Narratore.</p>
   </section>
 </div>
 
@@ -1345,12 +1345,12 @@ function exportCsv(){
   const annual=calculateAnnual();rows.push([],["ANNUALE"]);HOUSE_KEYS.forEach(h=>rows.push(["",HOUSES[h].name,"","","","","","","","",annual[h]]));
   const csv=rows.map(r=>r.map(v=>`"${String(v??"").replace(/"/g,'""')}"`).join(";")).join("\r\n"),blob=new Blob(["\ufeff"+csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download=`Coppa_${state.yearId}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
-async function enterStaff(){state.authenticated=true;state.staffMode=true;await loadPrivateYear();$("staffDashboard").classList.remove("hidden");$("staffEntryBtn").classList.add("hidden");setSaveStatus("Gestione attiva","ok");renderStaff();try{await ensureInitialStudentImport()}catch(e){console.error(e);setSaveStatus("Sincronizzazione iniziale non riuscita","bad")}await publishPublicSnapshot(false);startPrivateCupWatch();$("staffDashboard").scrollIntoView({behavior:"smooth",block:"start"})}
+async function enterStaff(){state.authenticated=true;state.staffMode=true;await loadPrivateYear();$("staffDashboard").classList.remove("hidden");$("staffEntryBtn").classList.add("hidden");setSaveStatus("Gestione attiva · aggiornamento registro pubblico…","warn");renderStaff();try{await ensureInitialStudentImport()}catch(e){console.error(e);setSaveStatus("Sincronizzazione iniziale non riuscita","bad")}try{await publishPublicSnapshot(true);setSaveStatus("Gestione attiva · registro pubblico aggiornato","ok")}catch(e){console.error("Pubblicazione registro pubblico:",e);setSaveStatus("Gestione attiva · errore nella pubblicazione del registro","bad")}startPrivateCupWatch();$("staffDashboard").scrollIntoView({behavior:"smooth",block:"start"})}
 async function requestStaff(){try{if(await hasRememberedStaff()){await enterStaff();return}}catch(e){}$("loginError").textContent="";$("loginOverlay").classList.add("show");setTimeout(()=>$("staffPassword").focus(),50)}
 function exitStaff(){stopPrivateCupWatch();state.staffMode=false;$("staffDashboard").classList.add("hidden");$("staffEntryBtn").classList.remove("hidden");window.scrollTo({top:0,behavior:"smooth"})}
 
 $("refreshBtn").onclick=async()=>{await loadPublicYear();if(state.staffMode){try{await loadPrivateYear();renderStaff();await publishPublicSnapshot(false);setSaveStatus("Dati aggiornati","ok")}catch(e){console.error(e);setSaveStatus("Errore di aggiornamento","bad")}}};
-$("yearSelect").onchange=async e=>{if(state.staffMode)stopPrivateCupWatch();state.yearId=e.target.value;const defs=monthDefs(state.yearId);state.selectedMonth=defs[0].key;state.publicLoaded=false;state.privateLoaded=false;state.publicData=sanitizePublicDoc({});state.docData=sanitizeDoc({});await loadPublicYear();if(state.staffMode){await loadPrivateYear();renderStaff();await publishPublicSnapshot(false);startPrivateCupWatch()}};
+$("yearSelect").onchange=async e=>{if(state.staffMode)stopPrivateCupWatch();state.yearId=e.target.value;const defs=monthDefs(state.yearId);state.selectedMonth=defs[0].key;state.publicLoaded=false;state.privateLoaded=false;state.publicData=sanitizePublicDoc({});state.docData=sanitizeDoc({});await loadPublicYear();if(state.staffMode){await loadPrivateYear();renderStaff();await publishPublicSnapshot(true);startPrivateCupWatch()}};
 $("staffEntryBtn").onclick=requestStaff;$("exitStaffBtn").onclick=exitStaff;
 $("loginBtn").onclick=async()=>{const p=$("staffPassword").value;$("loginError").textContent="";try{await unlockStaff(p);$("staffPassword").value="";$("loginOverlay").classList.remove("show");await enterStaff()}catch(e){console.error(e);$("loginError").textContent="Password Staff non valida o sessione non disponibile."}};
 $("staffPassword").addEventListener("keydown",e=>{if(e.key==="Enter")$("loginBtn").click()});$("loginClose").onclick=()=>$("loginOverlay").classList.remove("show");$("loginOverlay").onclick=e=>{if(e.target===$("loginOverlay"))$("loginOverlay").classList.remove("show")};
