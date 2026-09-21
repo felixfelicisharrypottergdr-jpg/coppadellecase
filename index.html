@@ -16,7 +16,6 @@
 <title>Coppa delle Case</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=IM+Fell+English:ital@0;1&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Antic+Slab&display=swap');
 @font-face {font-family: 'magic';
  src: url('https://dl.dropboxusercontent.com/scl/fi/nbzmrri4qyvc3tzx96911/HarryBeastDisplay-Regular.woff2?rlkey=he290voe32k33gowug23c1osc&st=nj9fgly1') format('woff2');
  font-weight: normal;
@@ -360,7 +359,7 @@ tr.month-idle td{background-image:linear-gradient(rgba(180,145,72,.028),rgba(180
 
 
 /* =====================================================================
-   v6.2 — Stemmi liberi, Antic Slab per i dati e riepilogo pubblico Case
+   v6.2 — Stemmi liberi, Georgia per i dati e riepilogo pubblico Case
    Solo UI + dati aggregati pubblici: nessuna nuova lettura Firebase.
    ===================================================================== */
 
@@ -385,7 +384,7 @@ tr.month-idle td{background-image:linear-gradient(rgba(180,145,72,.028),rgba(180
   overflow:visible;
 }
 
-/* Numeri e dati: Antic Slab, più leggibile in sequenze dense. */
+/* Numeri e dati: Georgia, più leggibile in sequenze dense. */
 .rank,
 .house-total,
 .house-month-chip,
@@ -398,15 +397,15 @@ tr.month-idle td{background-image:linear-gradient(rgba(180,145,72,.028),rgba(180
 .adjust-points,
 .override-auto b,
 .public-breakdown-line strong{
-  font-family:'Antic Slab',Georgia,serif !important;
+  font-family:Georgia,'Times New Roman',serif !important;
   font-variant-numeric:tabular-nums;
 }
 
-/* Tabelle Narratore: font dati più leggibile e dimensioni maggiori. */
+/* Tabelle Narratore: Georgia e dimensioni maggiori. */
 .staff-zone table,
 .staff-zone th,
 .staff-zone td{
-  font-family:'Antic Slab',Georgia,serif !important;
+  font-family:Georgia,'Times New Roman',serif !important;
   font-variant-numeric:tabular-nums;
 }
 .staff-zone td{
@@ -513,6 +512,231 @@ tr.month-idle td{background-image:linear-gradient(rgba(180,145,72,.028),rgba(180
   .staff-zone th{font-size:.69rem}
 }
 
+
+/* =====================================================================
+   v6.3 — Registro pubblico PG per Casa + Georgia per dati e tabelle
+   Nessuna lettura Firebase aggiuntiva: i dati sono nello snapshot pubblico.
+   ===================================================================== */
+
+/* Georgia sostituisce Antic Slab in tutti i dati numerici e nelle tabelle. */
+.rank,
+.house-total,
+.house-month-chip,
+.month-rank-card b,
+.month-rank-card em,
+.stat-value,
+.metric b,
+.algo-line strong,
+.frozen-count,
+.adjust-points,
+.override-auto b,
+.public-breakdown-line strong,
+.staff-zone table,
+.staff-zone th,
+.staff-zone td,
+.public-roster-table,
+.public-roster-table th,
+.public-roster-table td,
+.public-roster-count{
+  font-family:Georgia,'Times New Roman',serif !important;
+  font-variant-numeric:tabular-nums;
+}
+
+/* La card della Casa è il comando di apertura del registro. */
+.house-card-clickable{cursor:pointer}
+.house-card-clickable:focus-visible{
+  outline:2px solid var(--gold-bright);
+  outline-offset:3px;
+}
+.house-card-clickable.roster-open{
+  border-color:rgba(237,211,141,.72);
+  box-shadow:0 0 0 1px rgba(236,207,126,.12),0 20px 44px rgba(0,0,0,.46),0 0 32px rgba(205,169,77,.13);
+}
+.house-roster-hint{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  margin-top:10px;
+  color:#c8b994;
+  font-size:.67rem;
+  letter-spacing:.035em;
+}
+.house-card-clickable:hover .house-roster-hint{color:#f0dca2}
+
+/* Registro pubblico: chiuso di default, aperto cliccando una Casa. */
+.public-roster-panel{
+  position:relative;
+  margin:-4px 0 19px;
+  padding:18px 18px 17px;
+  border:1px solid rgba(218,188,115,.28);
+  border-top:3px solid var(--hc);
+  border-radius:16px;
+  background:linear-gradient(145deg,rgba(34,36,34,.90),rgba(9,11,12,.94));
+  box-shadow:0 15px 38px rgba(0,0,0,.30),inset 0 1px rgba(255,255,255,.025);
+}
+.public-roster-panel::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:radial-gradient(circle at 0 0,var(--hc),transparent 48%);
+  opacity:.10;
+  border-radius:inherit;
+}
+.public-roster-head,
+.public-roster-controls,
+.public-roster-table-wrap{position:relative}
+.public-roster-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  padding-bottom:14px;
+  border-bottom:1px solid rgba(218,188,115,.16);
+}
+.public-roster-heading{display:flex;align-items:center;gap:12px;min-width:0}
+.public-roster-crest{
+  flex:0 0 42px;
+  width:42px;
+  height:48px;
+  display:block;
+  overflow:visible;
+}
+.public-roster-crest img{display:block;width:100%;height:100%;object-fit:contain}
+.public-roster-heading h3{
+  margin:0;
+  font-family:'IM FELL English',Georgia,serif;
+  font-size:1.35rem;
+  font-weight:400;
+  color:#f0d99b;
+}
+.public-roster-heading p{
+  margin:3px 0 0;
+  color:#a99c84;
+  font-size:.72rem;
+}
+.public-roster-close{
+  width:36px;
+  height:36px;
+  display:grid;
+  place-items:center;
+  flex:0 0 36px;
+  border:1px solid rgba(218,188,115,.24);
+  border-radius:50%;
+  background:rgba(0,0,0,.18);
+  color:#d8c7a1;
+  font-family:Georgia,serif;
+  font-size:1.35rem;
+  line-height:1;
+}
+.public-roster-close:hover{border-color:#cdb26f;color:#fff0ce;background:rgba(255,255,255,.04)}
+.public-roster-controls{
+  display:flex;
+  align-items:flex-end;
+  gap:10px;
+  flex-wrap:wrap;
+  padding:13px 0 11px;
+}
+.public-roster-field{display:flex;flex-direction:column;gap:4px;min-width:180px}
+.public-roster-field label{
+  color:#aa9d83;
+  font-size:.63rem;
+  text-transform:uppercase;
+  letter-spacing:.10em;
+}
+.public-roster-field input,
+.public-roster-field select{
+  min-height:35px;
+  padding:6px 9px;
+  border:1px solid rgba(205,177,110,.38);
+  border-radius:8px;
+  background:rgba(247,240,222,.96);
+  color:#332a1c;
+  font-family:Georgia,'Times New Roman',serif;
+  font-size:.78rem;
+}
+.public-roster-search{flex:1 1 260px}
+.public-roster-count{
+  margin-left:auto;
+  padding:7px 10px;
+  color:#d8c8a6;
+  font-size:.73rem;
+  white-space:nowrap;
+}
+.public-roster-table-wrap{
+  overflow:auto;
+  border:1px solid rgba(218,188,115,.16);
+  border-radius:11px;
+  background:rgba(0,0,0,.14);
+}
+.public-roster-table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:610px;
+  color:#e5d9c0;
+  font-size:.84rem;
+}
+.public-roster-table th{
+  position:static;
+  padding:0;
+  border-bottom:1px solid rgba(218,188,115,.19);
+  background:rgba(16,18,18,.92);
+  text-align:left;
+  box-shadow:none;
+}
+.public-roster-table th:first-child,
+.public-roster-table td:first-child{
+  position:static;
+  background:transparent;
+  border-right:0;
+  box-shadow:none;
+}
+.public-roster-table th button{
+  width:100%;
+  min-height:42px;
+  border:0;
+  padding:10px 12px;
+  background:transparent;
+  color:#c9b994;
+  font-family:Georgia,'Times New Roman',serif;
+  font-size:.72rem;
+  text-align:left;
+  text-transform:uppercase;
+  letter-spacing:.055em;
+}
+.public-roster-table th:nth-child(3) button,
+.public-roster-table th:nth-child(4) button{text-align:right}
+.public-roster-table th button:hover,
+.public-roster-table th button.active{color:#f2dfa9;background:rgba(255,255,255,.035)}
+.public-roster-table th button span{display:inline-block;min-width:12px;margin-left:4px}
+.public-roster-table td{
+  padding:10px 12px;
+  border-bottom:1px solid rgba(218,188,115,.09);
+  background:transparent !important;
+  color:#d9cdb5;
+  white-space:nowrap;
+}
+.public-roster-table tbody tr:last-child td{border-bottom:0}
+.public-roster-table tbody tr:hover td{background:rgba(255,255,255,.035) !important}
+.public-roster-pg{color:#f0dfb5;font-weight:700}
+.public-roster-num{text-align:right}
+.public-roster-points{color:#fff0ce;font-weight:700}
+.public-roster-empty{
+  padding:22px !important;
+  text-align:center !important;
+  color:#9f9582 !important;
+  font-style:italic;
+}
+
+@media(max-width:680px){
+  .public-roster-panel{padding:14px 10px 12px;margin-top:0}
+  .public-roster-controls{align-items:stretch}
+  .public-roster-field{min-width:100%;width:100%}
+  .public-roster-count{margin-left:0}
+  .public-roster-heading h3{font-size:1.2rem}
+}
+
 </style>
 </head>
 <body>
@@ -539,6 +763,31 @@ tr.month-idle td{background-image:linear-gradient(rgba(180,145,72,.028),rgba(180
   <main id="publicDashboard" class="public-shell hidden">
     <div class="public-title-row"><div><h2>Classifica annuale</h2><p id="publicYearLabel">Anno scolastico</p></div></div>
     <section class="leaderboard" id="leaderboard"></section>
+    <section id="publicRosterPanel" class="public-roster-panel hidden" aria-live="polite">
+      <div class="public-roster-head">
+        <div class="public-roster-heading">
+          <span id="publicRosterCrest" class="public-roster-crest" aria-hidden="true"></span>
+          <div><h3 id="publicRosterTitle">Registro della Casa</h3><p id="publicRosterSubtitle">Studenti e contributi alla Coppa</p></div>
+        </div>
+        <button id="publicRosterClose" class="public-roster-close" type="button" aria-label="Chiudi registro">×</button>
+      </div>
+      <div class="public-roster-controls">
+        <div class="public-roster-field public-roster-search"><label for="publicRosterSearch">Cerca PG</label><input id="publicRosterSearch" type="search" placeholder="Nome del Personaggio" autocomplete="off"></div>
+        <div class="public-roster-field"><label for="publicRosterActivity">Partecipazione</label><select id="publicRosterActivity"><option value="all">Tutti</option><option value="posted">Con almeno 1 post</option><option value="zero">Senza post</option></select></div>
+        <div id="publicRosterCount" class="public-roster-count"></div>
+      </div>
+      <div class="public-roster-table-wrap">
+        <table class="public-roster-table">
+          <thead><tr>
+            <th><button type="button" data-public-roster-sort="pg">PG <span></span></button></th>
+            <th><button type="button" data-public-roster-sort="stimaValue">Stima <span></span></button></th>
+            <th><button type="button" data-public-roster-sort="posts">Post validi <span></span></button></th>
+            <th><button type="button" data-public-roster-sort="points">Punti Casa <span></span></button></th>
+          </tr></thead>
+          <tbody id="publicRosterBody"></tbody>
+        </table>
+      </div>
+    </section>
     <div class="month-tabs" id="monthTabs"></div>
     <section class="public-month-panel">
       <div class="public-month-head"><h3 id="publicMonthTitle">Andamento del mese</h3><span>Classifica mensile</span></div>
@@ -649,7 +898,7 @@ const app=initializeApp(firebaseConfig),db=getFirestore(app),auth=getAuth(app);
 const NARRATOR_UID="TFgqfVrFLjW5SwqRFXmEi8tDhtM2",PRIVATE_COLLECTION="coppa_case",PUBLIC_COLLECTION="coppa_case_pubblica",STAFF_SESSIONS="staff_edit_sessions";
 const HOUSES={grifondoro:{name:"Grifondoro",short:"G",color:"#751818",gem:"#d2a832",crest:"https://i.postimg.cc/FFJVnK3k/grifo.png"},tassorosso:{name:"Tassorosso",short:"T",color:"#c99b19",gem:"#3a3128",crest:"https://i.postimg.cc/dQTjS0rm/tasso.png"},corvonero:{name:"Corvonero",short:"C",color:"#214a82",gem:"#b88751",crest:"https://i.postimg.cc/nVQGwLBs/corvo.png"},serpeverde:{name:"Serpeverde",short:"S",color:"#235039",gem:"#c1c5c2",crest:"https://i.postimg.cc/RCnLb0Kc/serpe.png"}};
 const HOUSE_KEYS=Object.keys(HOUSES),MONTH_NAMES=["Settembre","Ottobre","Novembre","Dicembre","Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno"],STATUS_LABELS={active:"Attivo",frozen:"Congelato"};
-let state={yearId:"",docData:{},publicData:{},selectedMonth:"",publicLoaded:false,privateLoaded:false,authenticated:false,staffMode:false,dirty:false,saveTimer:null,activeAdjustPg:"",activeOverridePg:""};
+let state={yearId:"",docData:{},publicData:{},selectedMonth:"",publicLoaded:false,privateLoaded:false,authenticated:false,staffMode:false,dirty:false,saveTimer:null,activeAdjustPg:"",activeOverridePg:"",publicRosterHouse:"",publicRosterQuery:"",publicRosterActivity:"all",publicRosterSort:"points",publicRosterDir:"desc"};
 let PRIVATE_CUP_UNSUB=null,PRIVATE_CUP_PUBLIC_TIMER=null;
 const $=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 function currentSchoolYearStart(d=new Date()){const m=d.getMonth(),y=d.getFullYear();return m>=8?y:y-1}
@@ -780,7 +1029,8 @@ function sanitizeSeasonStats(raw){raw=raw&&typeof raw==="object"?raw:{};const cl
 function sanitizePublicStats(raw){raw=raw&&typeof raw==="object"?raw:{};const months={};monthDefs(state.yearId).forEach(md=>{months[md.key]=sanitizeMonthlyStats(raw.months&&raw.months[md.key])});return {months,season:sanitizeSeasonStats(raw.season)}}
 function emptyPublicHouseBreakdown(){return {casualPgs:0,casualPoints:0,competitivePgs:0,competitivePoints:0,median:0,virtual:0,virtualPoints:0,balancedPerformance:0,fantaDirect:0,total:0}}
 function sanitizePublicBreakdowns(raw){raw=raw&&typeof raw==="object"?raw:{};const out={};monthDefs(state.yearId).forEach(m=>{if(!raw[m.key]||typeof raw[m.key]!=="object")return;out[m.key]={};HOUSE_KEYS.forEach(h=>{const x=raw[m.key][h]&&typeof raw[m.key][h]==="object"?raw[m.key][h]:{};out[m.key][h]={casualPgs:Math.max(0,parseInt(x.casualPgs,10)||0),casualPoints:numeric(x.casualPoints),competitivePgs:Math.max(0,parseInt(x.competitivePgs,10)||0),competitivePoints:numeric(x.competitivePoints),median:numeric(x.median),virtual:Math.max(0,parseInt(x.virtual,10)||0),virtualPoints:numeric(x.virtualPoints),balancedPerformance:numeric(x.balancedPerformance),fantaDirect:numeric(x.fantaDirect),total:numeric(x.total)}})});return out}
-function sanitizePublicDoc(raw){raw=raw&&typeof raw==="object"?raw:{};const annual=emptyHouseTotals(),months={};HOUSE_KEYS.forEach(h=>annual[h]=numeric(raw.annual&&raw.annual[h]));monthDefs(state.yearId).forEach(m=>{months[m.key]=emptyHouseTotals();HOUSE_KEYS.forEach(h=>months[m.key][h]=numeric(raw.months&&raw.months[m.key]&&raw.months[m.key][h]))});return {schemaVersion:2,yearId:state.yearId,annual,months,breakdowns:sanitizePublicBreakdowns(raw.breakdowns),stats:sanitizePublicStats(raw.stats),publishedAt:raw.publishedAt||null}}
+function sanitizePublicRoster(raw){return (Array.isArray(raw)?raw:[]).map(x=>{x=x&&typeof x==="object"?x:{};const pg=normalizePg(x.pg),house=String(x.house||"");if(!pg||!HOUSES[house])return null;const sv=x.stimaValue===null||x.stimaValue===undefined||x.stimaValue===""?null:numeric(x.stimaValue);return {pg,house,stimaValue:sv,stimaLabel:String(x.stimaLabel||""),posts:Math.max(0,parseInt(x.posts,10)||0),points:numeric(x.points)}}).filter(Boolean)}
+function sanitizePublicDoc(raw){raw=raw&&typeof raw==="object"?raw:{};const annual=emptyHouseTotals(),months={};HOUSE_KEYS.forEach(h=>annual[h]=numeric(raw.annual&&raw.annual[h]));monthDefs(state.yearId).forEach(m=>{months[m.key]=emptyHouseTotals();HOUSE_KEYS.forEach(h=>months[m.key][h]=numeric(raw.months&&raw.months[m.key]&&raw.months[m.key][h]))});return {schemaVersion:3,yearId:state.yearId,annual,months,breakdowns:sanitizePublicBreakdowns(raw.breakdowns),roster:sanitizePublicRoster(raw.roster),stats:sanitizePublicStats(raw.stats),publishedAt:raw.publishedAt||null}}
 function statsSignature(rows){const src=JSON.stringify(rows.map(x=>[x.pg,x.house,x.points,x.posts,x.stimaPoints,x.rolePoints,x.extraPoints]));let h=2166136261;for(let i=0;i<src.length;i++){h^=src.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(36)}
 function calculateMonthlyPublicStats(monthKey){
   const people=[];
@@ -820,13 +1070,14 @@ function calculatePublicStats(months){
   const winRows=HOUSE_KEYS.map(h=>({house:h,wins:wins[h]})).sort((a,b)=>b.wins-a.wins),maxWins=winRows[0]?.wins||0,monthlyWinner=maxWins>0&&winRows.filter(x=>x.wins===maxWins).length===1?winRows[0]:null;
   return {months:monthly,season:{bestMonth,closestMonth,monthlyWinner}};
 }
-function publicSnapshotFromPrivate(){const annual=calculateAnnual(),months={},breakdowns={};monthDefs(state.yearId).forEach(m=>{const calc=calculateMonth(m.key),tot=emptyHouseTotals();breakdowns[m.key]={};HOUSE_KEYS.forEach(h=>{const x=calc.houses[h];tot[h]=numeric(x.total);breakdowns[m.key][h]={casualPgs:x.casualPgs.length,casualPoints:numeric(x.casualPoints),competitivePgs:x.competitivePgs.length,competitivePoints:numeric(x.competitivePoints),median:numeric(calc.median),virtual:numeric(x.virtual),virtualPoints:numeric(x.virtualPoints),balancedPerformance:numeric(x.balancedPerformance),fantaDirect:numeric(x.fantaDirect),total:numeric(x.total)}});months[m.key]=tot});return {schemaVersion:2,yearId:state.yearId,annual,months,breakdowns,stats:calculatePublicStats(months)}}
-function publicComparable(data){return JSON.stringify({schemaVersion:2,yearId:state.yearId,annual:(data&&data.annual)||{},months:(data&&data.months)||{},breakdowns:(data&&data.breakdowns)||{},stats:(data&&data.stats)||emptyPublicStats()})}
+function publicRosterFromPrivate(){const defs=monthDefs(state.yearId),rows=[];allPgNames().forEach(pg=>{const rec=state.docData.roster[pg];if(!rec||!HOUSES[rec.house])return;let posts=0,points=0,stimaValue=null,stimaLabel="";defs.forEach(md=>{const c=effectiveMonthContribution(pg,md.key);posts+=Math.max(0,parseInt(c.posts,10)||0);points+=numeric(c.base)+numeric(c.stimaPoints)+numeric(c.role)+numeric(c.manual)+numeric(c.staffDirect);if(c.stimaValue!==null&&c.stimaValue!==undefined){stimaValue=numeric(c.stimaValue);stimaLabel=String(c.stimaLabel||rawStimaBand(stimaValue).label||"")}});rows.push({pg,house:rec.house,stimaValue,stimaLabel,posts,points})});return rows.sort((a,b)=>a.pg.localeCompare(b.pg,"it",{sensitivity:"base"}))}
+function publicSnapshotFromPrivate(){const annual=calculateAnnual(),months={},breakdowns={};monthDefs(state.yearId).forEach(m=>{const calc=calculateMonth(m.key),tot=emptyHouseTotals();breakdowns[m.key]={};HOUSE_KEYS.forEach(h=>{const x=calc.houses[h];tot[h]=numeric(x.total);breakdowns[m.key][h]={casualPgs:x.casualPgs.length,casualPoints:numeric(x.casualPoints),competitivePgs:x.competitivePgs.length,competitivePoints:numeric(x.competitivePoints),median:numeric(calc.median),virtual:numeric(x.virtual),virtualPoints:numeric(x.virtualPoints),balancedPerformance:numeric(x.balancedPerformance),fantaDirect:numeric(x.fantaDirect),total:numeric(x.total)}});months[m.key]=tot});return {schemaVersion:3,yearId:state.yearId,annual,months,breakdowns,roster:publicRosterFromPrivate(),stats:calculatePublicStats(months)}}
+function publicComparable(data){return JSON.stringify({schemaVersion:3,yearId:state.yearId,annual:(data&&data.annual)||{},months:(data&&data.months)||{},breakdowns:(data&&data.breakdowns)||{},roster:(data&&data.roster)||[],stats:(data&&data.stats)||emptyPublicStats()})}
 
 /* Lettura pubblica volutamente separata dall'SDK Firestore.
    Nei browser/iframe in cui il canale Firestore resta pendente, fetch REST
    ha un timeout reale e impedisce alla home di fermarsi su “Aggiornamento…”. */
-const PUBLIC_CACHE_PREFIX="ff_coppa_public_v3_",PUBLIC_FETCH_TIMEOUT=7000;
+const PUBLIC_CACHE_PREFIX="ff_coppa_public_v4_",PUBLIC_FETCH_TIMEOUT=7000;
 function publicCacheKey(){return PUBLIC_CACHE_PREFIX+state.yearId}
 function firestoreDecodeValue(v){
   if(!v||typeof v!=="object")return null;
@@ -997,7 +1248,12 @@ function hourglassArea(a,b){a=Math.max(0,Math.min(100,Number(a)||0));b=Math.max(
 const HOURGLASS_TOTAL_AREA=hourglassArea(0,100);
 function hourglassFillForRatio(ratio){ratio=Math.max(0,Math.min(1,Number(ratio)||0));if(ratio<=0)return 0;if(ratio>=1)return 100;const target=HOURGLASS_TOTAL_AREA*ratio;let lo=0,hi=100;for(let i=0;i<28;i++){const mid=(lo+hi)/2,area=hourglassArea(100-mid,100);if(area<target)lo=mid;else hi=mid}return Math.round(((lo+hi)/2)*10)/10}
 function hourglassSeasonTarget(yearId,now=new Date()){const start=parseInt(String(yearId).slice(0,4),10);if(!Number.isFinite(start))return 2000;const currentStart=currentSchoolYearStart(now);if(start<currentStart)return 2000;if(start>currentStart)return 1000;const month=now.getMonth()+1;if(month>=9&&month<=11)return 1000;if(month===12||month<=2)return 1500;return 2000}
-function renderLeaderboard(){const annual=(state.publicData&&state.publicData.annual)||emptyHouseTotals(),monthTotals=(state.publicData&&state.publicData.months&&state.publicData.months[state.selectedMonth])||emptyHouseTotals(),ranks=rankings(annual),target=hourglassSeasonTarget(state.yearId),host=$("leaderboard");host.innerHTML="";HOUSE_KEYS.slice().sort((a,b)=>ranks[a]-ranks[b]).forEach(h=>{const x=HOUSES[h],ratio=target>0?numeric(annual[h])/target:0,fill=hourglassFillForRatio(ratio),d=document.createElement("article");d.className="house-card"+(ranks[h]===1?" winner":"");d.style.cssText=houseStyle(h)+`;--fill:${fill}%`;d.innerHTML=`<div class="rank">${ranks[h]}°</div><div class="house-top"><div class="crest"><img src="${x.crest}" alt="Stemma ${x.name}" loading="lazy"></div><div><div class="house-name">${x.name}</div><div class="house-meta">${ranks[h]===1?"In testa alla Coppa":"Classifica annuale"}</div></div></div><div class="house-total">${fmt(annual[h])}</div><div class="house-meta">Punti Casa</div><div class="house-month-chip">${signed(monthTotals[h])} nel mese selezionato</div><div class="hourglass" aria-hidden="true"></div>`;host.appendChild(d)});if(window.parent&&window.parent!==window){const scores={};HOUSE_KEYS.forEach(h=>{scores[h]=fmt(annual[h]);if(HOUSES[h]&&HOUSES[h].name)scores[HOUSES[h].name.toLowerCase()]=fmt(annual[h])});window.parent.postMessage({type:"SYNC_COPPA",scores:scores},"*")}}
+function renderLeaderboard(){const annual=(state.publicData&&state.publicData.annual)||emptyHouseTotals(),monthTotals=(state.publicData&&state.publicData.months&&state.publicData.months[state.selectedMonth])||emptyHouseTotals(),ranks=rankings(annual),target=hourglassSeasonTarget(state.yearId),host=$("leaderboard");host.innerHTML="";HOUSE_KEYS.slice().sort((a,b)=>ranks[a]-ranks[b]).forEach(h=>{const x=HOUSES[h],ratio=target>0?numeric(annual[h])/target:0,fill=hourglassFillForRatio(ratio),d=document.createElement("article");d.className="house-card house-card-clickable"+(ranks[h]===1?" winner":"")+(state.publicRosterHouse===h?" roster-open":"");d.style.cssText=houseStyle(h)+`;--fill:${fill}%`;d.setAttribute("role","button");d.setAttribute("tabindex","0");d.setAttribute("aria-controls","publicRosterPanel");d.setAttribute("aria-expanded",state.publicRosterHouse===h?"true":"false");d.title=`Apri il registro dei PG di ${x.name}`;d.innerHTML=`<div class="rank">${ranks[h]}°</div><div class="house-top"><div class="crest"><img src="${x.crest}" alt="Stemma ${x.name}" loading="lazy"></div><div><div class="house-name">${x.name}</div><div class="house-meta">${ranks[h]===1?"In testa alla Coppa":"Classifica annuale"}</div></div></div><div class="house-total">${fmt(annual[h])}</div><div class="house-meta">Punti Casa</div><div class="house-month-chip">${signed(monthTotals[h])} nel mese selezionato</div><div class="house-roster-hint">Registro PG <span aria-hidden="true">⌄</span></div><div class="hourglass" aria-hidden="true"></div>`;const open=()=>togglePublicRoster(h);d.onclick=open;d.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open()}};host.appendChild(d)});renderPublicRoster();if(window.parent&&window.parent!==window){const scores={};HOUSE_KEYS.forEach(h=>{scores[h]=fmt(annual[h]);if(HOUSES[h]&&HOUSES[h].name)scores[HOUSES[h].name.toLowerCase()]=fmt(annual[h])});window.parent.postMessage({type:"SYNC_COPPA",scores:scores},"*")}}
+function togglePublicRoster(h){state.publicRosterHouse=state.publicRosterHouse===h?"":h;state.publicRosterQuery="";state.publicRosterActivity="all";state.publicRosterSort="points";state.publicRosterDir="desc";renderLeaderboard();if(state.publicRosterHouse){const panel=$("publicRosterPanel");if(panel)panel.scrollIntoView({behavior:"smooth",block:"nearest"})}}
+function publicStimaRank(row){const v=row&&row.stimaValue;return v===null||v===undefined?-Infinity:numeric(v)}
+function setPublicRosterSort(key){if(state.publicRosterSort===key)state.publicRosterDir=state.publicRosterDir==="asc"?"desc":"asc";else{state.publicRosterSort=key;state.publicRosterDir=key==="pg"?"asc":"desc"}renderPublicRoster()}
+function renderPublicRoster(){const panel=$("publicRosterPanel"),body=$("publicRosterBody");if(!panel||!body)return;const h=state.publicRosterHouse;if(!h||!HOUSES[h]){panel.classList.add("hidden");return}panel.classList.remove("hidden");panel.style.cssText=houseStyle(h);const house=HOUSES[h];$("publicRosterTitle").textContent=`Registro · ${house.name}`;$("publicRosterSubtitle").textContent=`Anno scolastico ${yearLabel(state.yearId)} · dati personali accumulati finora`;$("publicRosterCrest").innerHTML=`<img src="${house.crest}" alt="" loading="lazy">`;const search=$("publicRosterSearch"),activity=$("publicRosterActivity");search.value=state.publicRosterQuery;activity.value=state.publicRosterActivity;search.oninput=()=>{state.publicRosterQuery=search.value;renderPublicRosterRows()};activity.onchange=()=>{state.publicRosterActivity=activity.value;renderPublicRosterRows()};$("publicRosterClose").onclick=()=>{state.publicRosterHouse="";renderLeaderboard()};panel.querySelectorAll("[data-public-roster-sort]").forEach(b=>{b.onclick=()=>setPublicRosterSort(b.dataset.publicRosterSort)});renderPublicRosterRows()}
+function renderPublicRosterRows(){const body=$("publicRosterBody"),panel=$("publicRosterPanel");if(!body||!panel||!state.publicRosterHouse)return;const q=String(state.publicRosterQuery||"").trim().toLocaleLowerCase("it-IT"),activity=state.publicRosterActivity||"all",key=state.publicRosterSort||"points",dir=state.publicRosterDir==="asc"?1:-1;let rows=((state.publicData&&state.publicData.roster)||[]).filter(r=>r.house===state.publicRosterHouse);if(q)rows=rows.filter(r=>r.pg.toLocaleLowerCase("it-IT").includes(q));if(activity==="posted")rows=rows.filter(r=>numeric(r.posts)>0);else if(activity==="zero")rows=rows.filter(r=>numeric(r.posts)<=0);rows=rows.slice().sort((a,b)=>{let av,bv;if(key==="pg"){av=a.pg.toLocaleLowerCase("it-IT");bv=b.pg.toLocaleLowerCase("it-IT");return av.localeCompare(bv,"it",{sensitivity:"base"})*dir}if(key==="stimaValue"){av=publicStimaRank(a);bv=publicStimaRank(b)}else{av=numeric(a[key]);bv=numeric(b[key])}return ((av-bv)*dir)||a.pg.localeCompare(b.pg,"it",{sensitivity:"base"})});body.innerHTML="";if(!rows.length){const tr=document.createElement("tr");tr.innerHTML=`<td colspan="4" class="public-roster-empty">${(state.publicData&&Array.isArray(state.publicData.roster)&&state.publicData.roster.length)?"Nessun PG corrisponde ai filtri.":"Registro disponibile al prossimo aggiornamento della Coppa."}</td>`;body.appendChild(tr)}else rows.forEach(r=>{const tr=document.createElement("tr"),stima=r.stimaValue===null||r.stimaValue===undefined?"—":`${fmt(r.stimaValue)}${r.stimaLabel?` · ${esc(r.stimaLabel)}`:""}`;tr.innerHTML=`<td><span class="public-roster-pg">${esc(r.pg)}</span></td><td>${stima}</td><td class="public-roster-num">${fmt(r.posts)}</td><td class="public-roster-num public-roster-points">${fmt(r.points)}</td>`;body.appendChild(tr)});$("publicRosterCount").textContent=`${rows.length} PG`;panel.querySelectorAll("[data-public-roster-sort]").forEach(b=>{const span=b.querySelector("span"),active=b.dataset.publicRosterSort===key;b.classList.toggle("active",active);if(span)span.textContent=active?(dir===1?"↑":"↓"):""})}
 function renderPublicMonth(){const def=monthDefs(state.yearId).find(x=>x.key===state.selectedMonth),totals=(state.publicData&&state.publicData.months&&state.publicData.months[state.selectedMonth])||emptyHouseTotals(),ranks=rankings(totals),host=$("publicMonthRank");$("publicMonthTitle").textContent=def?`Andamento · ${def.label}`:"Andamento del mese";host.innerHTML="";HOUSE_KEYS.slice().sort((a,b)=>ranks[a]-ranks[b]).forEach(h=>{const x=HOUSES[h],e=document.createElement("div");e.className="month-rank-card";e.style.cssText=houseStyle(h);e.innerHTML=`<em>${ranks[h]}°</em><span>${x.name}</span><b>${fmt(totals[h])} punti</b>`;host.appendChild(e)});renderPublicHouseBreakdown()}
 function renderPublicHouseBreakdown(){const host=$("publicHouseBreakdown"),note=$("publicBreakdownNote");if(!host)return;const month=state.publicData&&state.publicData.breakdowns&&state.publicData.breakdowns[state.selectedMonth];host.innerHTML="";if(!month){if(note)note.textContent="Dettaglio disponibile al prossimo aggiornamento della Coppa";return}const first=month[HOUSE_KEYS[0]]||emptyPublicHouseBreakdown();if(note)note.textContent=`Mediana dei PG Competitivi del mese: ${fmt(first.median)} Punti Casa`;HOUSE_KEYS.forEach(h=>{const x=month[h]||emptyPublicHouseBreakdown(),house=HOUSES[h],e=document.createElement("article");e.className="public-breakdown-card";e.style.cssText=houseStyle(h);e.innerHTML=`<div class="public-breakdown-title"><span class="public-breakdown-crest"><img src="${house.crest}" alt="" loading="lazy"></span><b>${house.name}</b></div><div class="public-breakdown-line"><span>PG Casual</span><strong>${fmt(x.casualPgs)} · ${fmt(x.casualPoints)} pt</strong></div><div class="public-breakdown-line"><span>PG Competitivi reali</span><strong>${fmt(x.competitivePgs)} · ${fmt(x.competitivePoints)} pt</strong></div><div class="public-breakdown-line"><span>PG Competitivi virtuali</span><strong>${fmt(x.virtual)} · ${signed(x.virtualPoints)} pt</strong></div><div class="public-breakdown-line"><span>Totale riequilibrato</span><strong>${fmt(x.balancedPerformance)} pt</strong></div><div class="public-breakdown-line"><span>FantaHogwarts</span><strong>${signed(x.fantaDirect)} pt</strong></div><div class="public-breakdown-line public-breakdown-total"><span>Totale Casa</span><strong>${fmt(x.total)} pt</strong></div>`;host.appendChild(e)})}
 function renderPublicStats(){
