@@ -737,6 +737,123 @@ tr.month-idle td{background-image:linear-gradient(rgba(180,145,72,.028),rgba(180
   .public-roster-heading h3{font-size:1.2rem}
 }
 
+
+/* =====================================================================
+   v6.4 — Hero basso: classifica visibile già nel primo viewport
+   Override finale per neutralizzare le vecchie altezze responsive.
+   ===================================================================== */
+
+/* L'immagine resta a tutta pagina, ma viene inquadrata più in basso per
+   conservare nella fascia hero la zona delle quattro clessidre. */
+body::before{
+  background-position:center 22% !important;
+}
+
+/* Desktop: il banner smette di occupare quasi tutto lo schermo. */
+.hero{
+  min-height:398px !important;
+}
+.hero-toolbar{
+  padding:11px 15px 0 !important;
+}
+.public-controls,
+.staff-entry{
+  padding:5px 6px !important;
+}
+.hero-copy{
+  flex:1 1 auto;
+  min-height:182px !important;
+  margin:0 auto !important;
+  padding:4px 18px 4px !important;
+  transform:none !important;
+  justify-content:center;
+}
+.hero h1{
+  font-size:clamp(3rem,5.6vw,5.45rem) !important;
+  margin:0 0 2px !important;
+}
+.hero-rule{
+  margin:7px auto 6px !important;
+}
+.hero-sub{
+  margin-top:4px !important;
+}
+.hero-footer{
+  margin-top:0 !important;
+  padding:0 18px 11px !important;
+  transform:none !important;
+}
+.hero-caption{
+  font-size:.62rem !important;
+  letter-spacing:.14em !important;
+}
+.connection{
+  margin:3px auto 0 !important;
+  min-height:13px;
+}
+
+/* La classifica si avvicina subito al banner. */
+.public-shell{
+  margin:8px 0 0 !important;
+  padding-top:20px !important;
+}
+.public-title-row{
+  margin:0 0 14px !important;
+}
+.leaderboard{
+  margin-top:0 !important;
+}
+
+/* Schermi intermedi: i controlli restano su una sola fascia quando possibile. */
+@media(max-width:1180px) and (min-width:761px){
+  .hero{
+    min-height:410px !important;
+  }
+  .hero-copy{
+    min-height:185px !important;
+  }
+  body::before{
+    background-position:center 20% !important;
+  }
+}
+
+/* Mobile: serve un po' più di altezza perché toolbar e pulsanti possono andare
+   a capo, ma molto meno rispetto ai 510–610 px precedenti. */
+@media(max-width:760px){
+  .hero{
+    min-height:430px !important;
+  }
+  .hero-toolbar{
+    padding:8px 8px 0 !important;
+  }
+  .hero-copy{
+    min-height:170px !important;
+    padding:7px 12px 4px !important;
+  }
+  .hero h1{
+    font-size:clamp(2.15rem,9.5vw,3.55rem) !important;
+  }
+  .hero-footer{
+    padding:0 10px 10px !important;
+  }
+  .public-shell{
+    margin:7px 0 0 !important;
+    padding-top:17px !important;
+  }
+  body::before{
+    background-position:center 16% !important;
+  }
+}
+
+@media(max-width:460px){
+  .hero{
+    min-height:445px !important;
+  }
+  .hero-caption{
+    font-size:.56rem !important;
+  }
+}
+
 </style>
 </head>
 <body>
