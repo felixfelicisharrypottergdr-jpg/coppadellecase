@@ -912,6 +912,133 @@ body::before{
   }
 }
 
+
+/* =====================================================================
+   v6.5 — Riepiloghi a comparsa + allineamento Riepilogo PG
+   ===================================================================== */
+
+/* La CTA del Riepilogo PG sta SEMPRE sotto il dato mensile, non sulla stessa riga. */
+.house-month-chip{
+  display:flex !important;
+  width:max-content;
+  max-width:calc(100% - 58px);
+}
+.house-roster-hint{
+  display:flex !important;
+  width:max-content;
+  clear:both;
+  margin-top:7px !important;
+  padding:1px 2px;
+  color:#d2c29d;
+}
+.house-card-clickable.roster-open .house-roster-hint span{
+  transform:rotate(180deg);
+}
+.house-roster-hint span{
+  display:inline-block;
+  transition:transform .16s ease;
+}
+
+/* Riepilogo Casa per Casa: intestazione cliccabile, contenuto chiuso di default. */
+.public-breakdown-toggle{
+  width:100%;
+  border:0;
+  border-top:1px solid rgba(212,180,103,.18);
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
+  text-align:left;
+  cursor:pointer;
+  padding-left:0;
+  padding-right:0;
+  color:inherit;
+}
+.public-breakdown-toggle:hover{
+  transform:none;
+  background:rgba(255,255,255,.025);
+  box-shadow:none;
+}
+.public-breakdown-toggle:focus-visible{
+  outline:1px solid rgba(231,207,138,.55);
+  outline-offset:4px;
+}
+.public-breakdown-action{
+  display:flex !important;
+  align-items:center;
+  gap:7px;
+  flex:0 0 auto;
+  margin:0 !important;
+  color:#d8c69c !important;
+  font-family:Georgia,'Times New Roman',serif;
+  font-size:.72rem !important;
+  letter-spacing:.02em;
+}
+.public-breakdown-action span{
+  display:inline-block !important;
+  margin:0 !important;
+}
+.public-breakdown-caret{
+  font-size:1rem !important;
+  line-height:1;
+  transition:transform .16s ease;
+}
+.public-breakdown-toggle.open .public-breakdown-caret{
+  transform:rotate(180deg);
+}
+.public-house-breakdown{
+  margin-top:2px;
+}
+
+/* Riepilogo PG: griglia colonne coerente fra intestazione e righe. */
+.public-roster-table{
+  table-layout:fixed;
+}
+.public-roster-table th:nth-child(1),
+.public-roster-table td:nth-child(1){width:34%;text-align:left}
+.public-roster-table th:nth-child(2),
+.public-roster-table td:nth-child(2){width:36%;text-align:left}
+.public-roster-table th:nth-child(3),
+.public-roster-table td:nth-child(3){width:15%;text-align:right}
+.public-roster-table th:nth-child(4),
+.public-roster-table td:nth-child(4){width:15%;text-align:right}
+
+.public-roster-table th:nth-child(1) button,
+.public-roster-table th:nth-child(2) button{text-align:left}
+.public-roster-table th:nth-child(3) button,
+.public-roster-table th:nth-child(4) button{text-align:right}
+
+.public-roster-table th button,
+.public-roster-table td{
+  padding-left:14px;
+  padding-right:14px;
+}
+.public-roster-table td:nth-child(2){
+  white-space:normal;
+}
+.public-roster-table th:nth-child(3) button,
+.public-roster-table th:nth-child(4) button{
+  display:flex;
+  justify-content:flex-end;
+  align-items:center;
+  gap:4px;
+}
+.public-roster-table th:nth-child(1) button,
+.public-roster-table th:nth-child(2) button{
+  display:flex;
+  justify-content:flex-start;
+  align-items:center;
+  gap:4px;
+}
+.public-roster-table th button span{
+  margin-left:0 !important;
+}
+
+@media(max-width:680px){
+  .public-breakdown-toggle{
+    align-items:center !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -942,7 +1069,7 @@ body::before{
       <div class="public-roster-head">
         <div class="public-roster-heading">
           <span id="publicRosterCrest" class="public-roster-crest" aria-hidden="true"></span>
-          <div><h3 id="publicRosterTitle">Registro della Casa</h3><p id="publicRosterSubtitle">Studenti e contributi alla Coppa</p></div>
+          <div><h3 id="publicRosterTitle">Riepilogo PG</h3><p id="publicRosterSubtitle">Studenti e contributi alla Coppa</p></div>
         </div>
         <button id="publicRosterClose" class="public-roster-close" type="button" aria-label="Chiudi registro">×</button>
       </div>
@@ -967,10 +1094,11 @@ body::before{
     <section class="public-month-panel">
       <div class="public-month-head"><h3 id="publicMonthTitle">Andamento del mese</h3><span>Classifica mensile</span></div>
       <div class="month-rank" id="publicMonthRank"></div>
-      <div class="public-breakdown-head">
+      <button id="publicBreakdownToggle" class="public-breakdown-head public-breakdown-toggle" type="button" aria-expanded="false" aria-controls="publicHouseBreakdown">
         <div><h4>Riepilogo Casa per Casa</h4><span id="publicBreakdownNote">Dettaglio del riequilibrio mensile</span></div>
-      </div>
-      <div class="public-house-breakdown" id="publicHouseBreakdown"></div>
+        <span class="public-breakdown-action"><span id="publicBreakdownActionText">Mostra</span><span class="public-breakdown-caret" aria-hidden="true">⌄</span></span>
+      </button>
+      <div class="public-house-breakdown hidden" id="publicHouseBreakdown"></div>
     </section>
     <section class="public-stats">
       <div class="stats-heading">
@@ -1073,7 +1201,7 @@ const app=initializeApp(firebaseConfig),db=getFirestore(app),auth=getAuth(app);
 const NARRATOR_UID="TFgqfVrFLjW5SwqRFXmEi8tDhtM2",PRIVATE_COLLECTION="coppa_case",PUBLIC_COLLECTION="coppa_case_pubblica",STAFF_SESSIONS="staff_edit_sessions";
 const HOUSES={grifondoro:{name:"Grifondoro",short:"G",color:"#751818",gem:"#d2a832",crest:"https://i.postimg.cc/FFJVnK3k/grifo.png"},tassorosso:{name:"Tassorosso",short:"T",color:"#c99b19",gem:"#3a3128",crest:"https://i.postimg.cc/dQTjS0rm/tasso.png"},corvonero:{name:"Corvonero",short:"C",color:"#214a82",gem:"#b88751",crest:"https://i.postimg.cc/nVQGwLBs/corvo.png"},serpeverde:{name:"Serpeverde",short:"S",color:"#235039",gem:"#c1c5c2",crest:"https://i.postimg.cc/RCnLb0Kc/serpe.png"}};
 const HOUSE_KEYS=Object.keys(HOUSES),MONTH_NAMES=["Settembre","Ottobre","Novembre","Dicembre","Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno"],STATUS_LABELS={active:"Attivo",frozen:"Congelato"};
-let state={yearId:"",docData:{},publicData:{},selectedMonth:"",publicLoaded:false,privateLoaded:false,authenticated:false,staffMode:false,dirty:false,saveTimer:null,activeAdjustPg:"",activeOverridePg:"",publicRosterHouse:"",publicRosterQuery:"",publicRosterActivity:"all",publicRosterSort:"points",publicRosterDir:"desc"};
+let state={yearId:"",docData:{},publicData:{},selectedMonth:"",publicLoaded:false,privateLoaded:false,authenticated:false,staffMode:false,dirty:false,saveTimer:null,activeAdjustPg:"",activeOverridePg:"",publicRosterHouse:"",publicRosterQuery:"",publicRosterActivity:"all",publicRosterSort:"points",publicRosterDir:"desc",publicBreakdownOpen:false};
 let PRIVATE_CUP_UNSUB=null,PRIVATE_CUP_PUBLIC_TIMER=null;
 const $=id=>document.getElementById(id),esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
 function currentSchoolYearStart(d=new Date()){const m=d.getMonth(),y=d.getFullYear();return m>=8?y:y-1}
@@ -1424,14 +1552,15 @@ function hourglassArea(a,b){a=Math.max(0,Math.min(100,Number(a)||0));b=Math.max(
 const HOURGLASS_TOTAL_AREA=hourglassArea(0,100);
 function hourglassFillForRatio(ratio){ratio=Math.max(0,Math.min(1,Number(ratio)||0));if(ratio<=0)return 0;if(ratio>=1)return 100;const target=HOURGLASS_TOTAL_AREA*ratio;let lo=0,hi=100;for(let i=0;i<28;i++){const mid=(lo+hi)/2,area=hourglassArea(100-mid,100);if(area<target)lo=mid;else hi=mid}return Math.round(((lo+hi)/2)*10)/10}
 function hourglassSeasonTarget(yearId,now=new Date()){const start=parseInt(String(yearId).slice(0,4),10);if(!Number.isFinite(start))return 2000;const currentStart=currentSchoolYearStart(now);if(start<currentStart)return 2000;if(start>currentStart)return 1000;const month=now.getMonth()+1;if(month>=9&&month<=11)return 1000;if(month===12||month<=2)return 1500;return 2000}
-function renderLeaderboard(){const annual=(state.publicData&&state.publicData.annual)||emptyHouseTotals(),monthTotals=(state.publicData&&state.publicData.months&&state.publicData.months[state.selectedMonth])||emptyHouseTotals(),ranks=rankings(annual),target=hourglassSeasonTarget(state.yearId),host=$("leaderboard");host.innerHTML="";HOUSE_KEYS.slice().sort((a,b)=>ranks[a]-ranks[b]).forEach(h=>{const x=HOUSES[h],ratio=target>0?numeric(annual[h])/target:0,fill=hourglassFillForRatio(ratio),d=document.createElement("article");d.className="house-card house-card-clickable"+(ranks[h]===1?" winner":"")+(state.publicRosterHouse===h?" roster-open":"");d.style.cssText=houseStyle(h)+`;--fill:${fill}%`;d.setAttribute("role","button");d.setAttribute("tabindex","0");d.setAttribute("aria-controls","publicRosterPanel");d.setAttribute("aria-expanded",state.publicRosterHouse===h?"true":"false");d.title=`Apri il registro dei PG di ${x.name}`;d.innerHTML=`<div class="rank">${ranks[h]}°</div><div class="house-top"><div class="crest"><img src="${x.crest}" alt="Stemma ${x.name}" loading="lazy"></div><div><div class="house-name">${x.name}</div><div class="house-meta">${ranks[h]===1?"In testa alla Coppa":"Classifica annuale"}</div></div></div><div class="house-total">${fmt(annual[h])}</div><div class="house-meta">Punti Casa</div><div class="house-month-chip">${signed(monthTotals[h])} nel mese selezionato</div><div class="house-roster-hint">Registro PG <span aria-hidden="true">⌄</span></div><div class="hourglass" aria-hidden="true"></div>`;const open=()=>togglePublicRoster(h);d.onclick=open;d.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open()}};host.appendChild(d)});renderPublicRoster();if(window.parent&&window.parent!==window){const scores={};HOUSE_KEYS.forEach(h=>{scores[h]=fmt(annual[h]);if(HOUSES[h]&&HOUSES[h].name)scores[HOUSES[h].name.toLowerCase()]=fmt(annual[h])});window.parent.postMessage({type:"SYNC_COPPA",scores:scores},"*")}}
+function renderLeaderboard(){const annual=(state.publicData&&state.publicData.annual)||emptyHouseTotals(),monthTotals=(state.publicData&&state.publicData.months&&state.publicData.months[state.selectedMonth])||emptyHouseTotals(),ranks=rankings(annual),target=hourglassSeasonTarget(state.yearId),host=$("leaderboard");host.innerHTML="";HOUSE_KEYS.slice().sort((a,b)=>ranks[a]-ranks[b]).forEach(h=>{const x=HOUSES[h],ratio=target>0?numeric(annual[h])/target:0,fill=hourglassFillForRatio(ratio),d=document.createElement("article");d.className="house-card house-card-clickable"+(ranks[h]===1?" winner":"")+(state.publicRosterHouse===h?" roster-open":"");d.style.cssText=houseStyle(h)+`;--fill:${fill}%`;d.setAttribute("role","button");d.setAttribute("tabindex","0");d.setAttribute("aria-controls","publicRosterPanel");d.setAttribute("aria-expanded",state.publicRosterHouse===h?"true":"false");d.title=`Apri il Riepilogo PG di ${x.name}`;d.innerHTML=`<div class="rank">${ranks[h]}°</div><div class="house-top"><div class="crest"><img src="${x.crest}" alt="Stemma ${x.name}" loading="lazy"></div><div><div class="house-name">${x.name}</div><div class="house-meta">${ranks[h]===1?"In testa alla Coppa":"Classifica annuale"}</div></div></div><div class="house-total">${fmt(annual[h])}</div><div class="house-meta">Punti Casa</div><div class="house-month-chip">${signed(monthTotals[h])} nel mese selezionato</div><div class="house-roster-hint">Riepilogo PG <span aria-hidden="true">⌄</span></div><div class="hourglass" aria-hidden="true"></div>`;const open=()=>togglePublicRoster(h);d.onclick=open;d.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open()}};host.appendChild(d)});renderPublicRoster();if(window.parent&&window.parent!==window){const scores={};HOUSE_KEYS.forEach(h=>{scores[h]=fmt(annual[h]);if(HOUSES[h]&&HOUSES[h].name)scores[HOUSES[h].name.toLowerCase()]=fmt(annual[h])});window.parent.postMessage({type:"SYNC_COPPA",scores:scores},"*")}}
 function togglePublicRoster(h){state.publicRosterHouse=state.publicRosterHouse===h?"":h;state.publicRosterQuery="";state.publicRosterActivity="all";state.publicRosterSort="points";state.publicRosterDir="desc";renderLeaderboard();if(state.publicRosterHouse){const panel=$("publicRosterPanel");if(panel)panel.scrollIntoView({behavior:"smooth",block:"nearest"})}}
 function publicStimaRank(row){const v=row&&row.stimaValue;return v===null||v===undefined?-Infinity:numeric(v)}
 function setPublicRosterSort(key){if(state.publicRosterSort===key)state.publicRosterDir=state.publicRosterDir==="asc"?"desc":"asc";else{state.publicRosterSort=key;state.publicRosterDir=key==="pg"?"asc":"desc"}renderPublicRoster()}
-function renderPublicRoster(){const panel=$("publicRosterPanel"),body=$("publicRosterBody");if(!panel||!body)return;const h=state.publicRosterHouse;if(!h||!HOUSES[h]){panel.classList.add("hidden");return}panel.classList.remove("hidden");panel.style.cssText=houseStyle(h);const house=HOUSES[h];$("publicRosterTitle").textContent=`Registro · ${house.name}`;$("publicRosterSubtitle").textContent=`Anno scolastico ${yearLabel(state.yearId)} · dati personali accumulati finora`;$("publicRosterCrest").innerHTML=`<img src="${house.crest}" alt="" loading="lazy">`;const search=$("publicRosterSearch"),activity=$("publicRosterActivity");search.value=state.publicRosterQuery;activity.value=state.publicRosterActivity;search.oninput=()=>{state.publicRosterQuery=search.value;renderPublicRosterRows()};activity.onchange=()=>{state.publicRosterActivity=activity.value;renderPublicRosterRows()};$("publicRosterClose").onclick=()=>{state.publicRosterHouse="";renderLeaderboard()};panel.querySelectorAll("[data-public-roster-sort]").forEach(b=>{b.onclick=()=>setPublicRosterSort(b.dataset.publicRosterSort)});renderPublicRosterRows()}
+function renderPublicRoster(){const panel=$("publicRosterPanel"),body=$("publicRosterBody");if(!panel||!body)return;const h=state.publicRosterHouse;if(!h||!HOUSES[h]){panel.classList.add("hidden");return}panel.classList.remove("hidden");panel.style.cssText=houseStyle(h);const house=HOUSES[h];$("publicRosterTitle").textContent=`Riepilogo PG · ${house.name}`;$("publicRosterSubtitle").textContent=`Anno scolastico ${yearLabel(state.yearId)} · dati personali accumulati finora`;$("publicRosterCrest").innerHTML=`<img src="${house.crest}" alt="" loading="lazy">`;const search=$("publicRosterSearch"),activity=$("publicRosterActivity");search.value=state.publicRosterQuery;activity.value=state.publicRosterActivity;search.oninput=()=>{state.publicRosterQuery=search.value;renderPublicRosterRows()};activity.onchange=()=>{state.publicRosterActivity=activity.value;renderPublicRosterRows()};$("publicRosterClose").onclick=()=>{state.publicRosterHouse="";renderLeaderboard()};panel.querySelectorAll("[data-public-roster-sort]").forEach(b=>{b.onclick=()=>setPublicRosterSort(b.dataset.publicRosterSort)});renderPublicRosterRows()}
 function renderPublicRosterRows(){const body=$("publicRosterBody"),panel=$("publicRosterPanel");if(!body||!panel||!state.publicRosterHouse)return;const q=String(state.publicRosterQuery||"").trim().toLocaleLowerCase("it-IT"),activity=state.publicRosterActivity||"all",key=state.publicRosterSort||"points",dir=state.publicRosterDir==="asc"?1:-1;let rows=((state.publicData&&state.publicData.roster)||[]).filter(r=>r.house===state.publicRosterHouse);if(q)rows=rows.filter(r=>r.pg.toLocaleLowerCase("it-IT").includes(q));if(activity==="posted")rows=rows.filter(r=>numeric(r.posts)>0);else if(activity==="zero")rows=rows.filter(r=>numeric(r.posts)<=0);rows=rows.slice().sort((a,b)=>{let av,bv;if(key==="pg"){av=a.pg.toLocaleLowerCase("it-IT");bv=b.pg.toLocaleLowerCase("it-IT");return av.localeCompare(bv,"it",{sensitivity:"base"})*dir}if(key==="stimaValue"){av=publicStimaRank(a);bv=publicStimaRank(b)}else{av=numeric(a[key]);bv=numeric(b[key])}return ((av-bv)*dir)||a.pg.localeCompare(b.pg,"it",{sensitivity:"base"})});body.innerHTML="";if(!rows.length){const tr=document.createElement("tr");tr.innerHTML=`<td colspan="4" class="public-roster-empty">${(state.publicData&&Array.isArray(state.publicData.roster)&&state.publicData.roster.length)?"Nessun PG corrisponde ai filtri.":"Registro disponibile al prossimo aggiornamento della Coppa."}</td>`;body.appendChild(tr)}else rows.forEach(r=>{const tr=document.createElement("tr"),stima=r.stimaValue===null||r.stimaValue===undefined?"—":`${fmt(r.stimaValue)}${r.stimaLabel?` · ${esc(r.stimaLabel)}`:""}`;tr.innerHTML=`<td><span class="public-roster-pg">${esc(r.pg)}</span></td><td>${stima}</td><td class="public-roster-num">${fmt(r.posts)}</td><td class="public-roster-num public-roster-points">${fmt(r.points)}</td>`;body.appendChild(tr)});$("publicRosterCount").textContent=`${rows.length} PG`;panel.querySelectorAll("[data-public-roster-sort]").forEach(b=>{const span=b.querySelector("span"),active=b.dataset.publicRosterSort===key;b.classList.toggle("active",active);if(span)span.textContent=active?(dir===1?"↑":"↓"):""})}
 function renderPublicMonth(){const def=monthDefs(state.yearId).find(x=>x.key===state.selectedMonth),totals=(state.publicData&&state.publicData.months&&state.publicData.months[state.selectedMonth])||emptyHouseTotals(),ranks=rankings(totals),host=$("publicMonthRank");$("publicMonthTitle").textContent=def?`Andamento · ${def.label}`:"Andamento del mese";host.innerHTML="";HOUSE_KEYS.slice().sort((a,b)=>ranks[a]-ranks[b]).forEach(h=>{const x=HOUSES[h],e=document.createElement("div");e.className="month-rank-card";e.style.cssText=houseStyle(h);e.innerHTML=`<em>${ranks[h]}°</em><span>${x.name}</span><b>${fmt(totals[h])} punti</b>`;host.appendChild(e)});renderPublicHouseBreakdown()}
-function renderPublicHouseBreakdown(){const host=$("publicHouseBreakdown"),note=$("publicBreakdownNote");if(!host)return;const month=state.publicData&&state.publicData.breakdowns&&state.publicData.breakdowns[state.selectedMonth];host.innerHTML="";if(!month){if(note)note.textContent="Dettaglio disponibile al prossimo aggiornamento della Coppa";return}const first=month[HOUSE_KEYS[0]]||emptyPublicHouseBreakdown();if(note)note.textContent=`Mediana dei PG Competitivi del mese: ${fmt(first.median)} Punti Casa`;HOUSE_KEYS.forEach(h=>{const x=month[h]||emptyPublicHouseBreakdown(),house=HOUSES[h],e=document.createElement("article");e.className="public-breakdown-card";e.style.cssText=houseStyle(h);e.innerHTML=`<div class="public-breakdown-title"><span class="public-breakdown-crest"><img src="${house.crest}" alt="" loading="lazy"></span><b>${house.name}</b></div><div class="public-breakdown-line"><span>PG Casual</span><strong>${fmt(x.casualPgs)} · ${fmt(x.casualPoints)} pt</strong></div><div class="public-breakdown-line"><span>PG Competitivi reali</span><strong>${fmt(x.competitivePgs)} · ${fmt(x.competitivePoints)} pt</strong></div><div class="public-breakdown-line"><span>PG Competitivi virtuali</span><strong>${fmt(x.virtual)} · ${signed(x.virtualPoints)} pt</strong></div><div class="public-breakdown-line"><span>Totale riequilibrato</span><strong>${fmt(x.balancedPerformance)} pt</strong></div><div class="public-breakdown-line"><span>FantaHogwarts</span><strong>${signed(x.fantaDirect)} pt</strong></div><div class="public-breakdown-line public-breakdown-total"><span>Totale Casa</span><strong>${fmt(x.total)} pt</strong></div>`;host.appendChild(e)})}
+function togglePublicHouseBreakdown(){state.publicBreakdownOpen=!state.publicBreakdownOpen;renderPublicHouseBreakdown()}
+function renderPublicHouseBreakdown(){const host=$("publicHouseBreakdown"),note=$("publicBreakdownNote"),toggle=$("publicBreakdownToggle"),action=$("publicBreakdownActionText");if(!host)return;if(toggle){toggle.setAttribute("aria-expanded",state.publicBreakdownOpen?"true":"false");toggle.onclick=togglePublicHouseBreakdown;toggle.classList.toggle("open",state.publicBreakdownOpen)}if(action)action.textContent=state.publicBreakdownOpen?"Nascondi":"Mostra";host.classList.toggle("hidden",!state.publicBreakdownOpen);const month=state.publicData&&state.publicData.breakdowns&&state.publicData.breakdowns[state.selectedMonth];host.innerHTML="";if(!month){if(note)note.textContent="Dettaglio disponibile al prossimo aggiornamento della Coppa";return}const first=month[HOUSE_KEYS[0]]||emptyPublicHouseBreakdown();if(note)note.textContent=`Mediana dei PG Competitivi del mese: ${fmt(first.median)} Punti Casa`;HOUSE_KEYS.forEach(h=>{const x=month[h]||emptyPublicHouseBreakdown(),house=HOUSES[h],e=document.createElement("article");e.className="public-breakdown-card";e.style.cssText=houseStyle(h);e.innerHTML=`<div class="public-breakdown-title"><span class="public-breakdown-crest"><img src="${house.crest}" alt="" loading="lazy"></span><b>${house.name}</b></div><div class="public-breakdown-line"><span>PG Casual</span><strong>${fmt(x.casualPgs)} · ${fmt(x.casualPoints)} pt</strong></div><div class="public-breakdown-line"><span>PG Competitivi reali</span><strong>${fmt(x.competitivePgs)} · ${fmt(x.competitivePoints)} pt</strong></div><div class="public-breakdown-line"><span>PG Competitivi virtuali</span><strong>${fmt(x.virtual)} · ${signed(x.virtualPoints)} pt</strong></div><div class="public-breakdown-line"><span>Totale riequilibrato</span><strong>${fmt(x.balancedPerformance)} pt</strong></div><div class="public-breakdown-line"><span>FantaHogwarts</span><strong>${signed(x.fantaDirect)} pt</strong></div><div class="public-breakdown-line public-breakdown-total"><span>Totale Casa</span><strong>${fmt(x.total)} pt</strong></div>`;host.appendChild(e)})}
 function renderPublicStats(){
   const defs=monthDefs(state.yearId),def=defs.find(x=>x.key===state.selectedMonth),all=(state.publicData&&state.publicData.stats)||emptyPublicStats(),st=(all.months&&all.months[state.selectedMonth])||emptyMonthlyStats(),host=$("publicStats"),seasonHost=$("seasonStats");
   host.innerHTML="";seasonHost.innerHTML="";
