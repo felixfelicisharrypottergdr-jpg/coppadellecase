@@ -16,6 +16,7 @@
 <title>Coppa delle Case</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=IM+Fell+English:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Antic+Slab&display=swap');
 @font-face {font-family: 'magic';
  src: url('https://dl.dropboxusercontent.com/scl/fi/nbzmrri4qyvc3tzx96911/HarryBeastDisplay-Regular.woff2?rlkey=he290voe32k33gowug23c1osc&st=nj9fgly1') format('woff2');
  font-weight: normal;
@@ -357,6 +358,161 @@ tr.month-idle td{background-image:linear-gradient(rgba(180,145,72,.028),rgba(180
   font-family:'IM FELL English',Georgia,serif !important;
 }
 
+
+/* =====================================================================
+   v6.2 — Stemmi liberi, Antic Slab per i dati e riepilogo pubblico Case
+   Solo UI + dati aggregati pubblici: nessuna nuova lettura Firebase.
+   ===================================================================== */
+
+/* Gli stemmi non vengono più ritagliati da contenitori circolari o overflow. */
+.crest,
+.stat-icon.house-crest,
+.public-breakdown-crest{
+  border-radius:0 !important;
+  overflow:visible !important;
+  clip-path:none !important;
+  border:0 !important;
+  background:none !important;
+  box-shadow:none !important;
+}
+.crest img,
+.stat-icon.house-crest img,
+.public-breakdown-crest img{
+  display:block;
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  overflow:visible;
+}
+
+/* Numeri e dati: Antic Slab, più leggibile in sequenze dense. */
+.rank,
+.house-total,
+.house-month-chip,
+.month-rank-card b,
+.month-rank-card em,
+.stat-value,
+.metric b,
+.algo-line strong,
+.frozen-count,
+.adjust-points,
+.override-auto b,
+.public-breakdown-line strong{
+  font-family:'Antic Slab',Georgia,serif !important;
+  font-variant-numeric:tabular-nums;
+}
+
+/* Tabelle Narratore: font dati più leggibile e dimensioni maggiori. */
+.staff-zone table,
+.staff-zone th,
+.staff-zone td{
+  font-family:'Antic Slab',Georgia,serif !important;
+  font-variant-numeric:tabular-nums;
+}
+.staff-zone td{
+  font-size:.88rem;
+  line-height:1.28;
+  padding:10px 9px;
+}
+.staff-zone th{
+  font-size:.72rem;
+  line-height:1.22;
+  padding:11px 9px;
+}
+.algo-line{
+  font-size:.82rem;
+  line-height:1.3;
+}
+
+/* Riepilogo aggregato delle Case visibile anche ai Player. */
+.public-breakdown-head{
+  display:flex;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  margin:20px 0 11px;
+  padding-top:17px;
+  border-top:1px solid rgba(212,180,103,.18);
+}
+.public-breakdown-head h4{
+  margin:0;
+  font-family:'IM FELL English',Georgia,serif;
+  font-size:1.08rem;
+  font-weight:400;
+  color:#ead69b;
+}
+.public-breakdown-head span{
+  display:block;
+  margin-top:4px;
+  color:#9f9582;
+  font-size:.69rem;
+}
+.public-house-breakdown{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(190px,1fr));
+  gap:10px;
+}
+.public-breakdown-card{
+  position:relative;
+  padding:14px 14px 13px;
+  border:1px solid rgba(215,187,118,.18);
+  border-top:3px solid var(--hc);
+  border-radius:13px;
+  background:linear-gradient(145deg,rgba(255,255,255,.05),rgba(0,0,0,.13));
+  box-shadow:inset 0 1px rgba(255,255,255,.02);
+}
+.public-breakdown-title{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin-bottom:10px;
+  color:#f1dfb5;
+}
+.public-breakdown-title b{
+  font-family:'IM FELL English',Georgia,serif;
+  font-size:1rem;
+  font-weight:400;
+}
+.public-breakdown-crest{
+  flex:0 0 28px;
+  width:28px;
+  height:32px;
+}
+.public-breakdown-line{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  padding:4px 0;
+  color:#aaa08d;
+  font-size:.72rem;
+}
+.public-breakdown-line strong{
+  color:#eadfc4;
+  font-size:.78rem;
+  font-weight:400;
+  white-space:nowrap;
+}
+.public-breakdown-total{
+  margin-top:6px;
+  padding-top:8px;
+  border-top:1px solid rgba(215,187,118,.15);
+  color:#d5c39d;
+}
+.public-breakdown-total strong{
+  color:#fff0ce;
+  font-size:.9rem;
+}
+
+@media(max-width:1180px){
+  .public-house-breakdown{grid-template-columns:repeat(2,minmax(190px,1fr))}
+}
+@media(max-width:680px){
+  .public-house-breakdown{grid-template-columns:1fr}
+  .public-breakdown-head{align-items:flex-start}
+  .staff-zone td{font-size:.84rem}
+  .staff-zone th{font-size:.69rem}
+}
+
 </style>
 </head>
 <body>
@@ -387,6 +543,10 @@ tr.month-idle td{background-image:linear-gradient(rgba(180,145,72,.028),rgba(180
     <section class="public-month-panel">
       <div class="public-month-head"><h3 id="publicMonthTitle">Andamento del mese</h3><span>Classifica mensile</span></div>
       <div class="month-rank" id="publicMonthRank"></div>
+      <div class="public-breakdown-head">
+        <div><h4>Riepilogo Casa per Casa</h4><span id="publicBreakdownNote">Dettaglio del riequilibrio mensile</span></div>
+      </div>
+      <div class="public-house-breakdown" id="publicHouseBreakdown"></div>
     </section>
     <section class="public-stats">
       <div class="stats-heading">
@@ -618,7 +778,9 @@ function sanitizePublicPerson(v){if(!v||typeof v!=="object")return null;const pg
 function sanitizeMonthlyStats(raw){raw=raw&&typeof raw==="object"?raw:{};const houseLeaders={};HOUSE_KEYS.forEach(h=>{const x=sanitizePublicPerson(raw.houseLeaders&&raw.houseLeaders[h]);if(x)houseLeaders[h]=x});const status=["live","closed","upcoming"].includes(raw.status)?raw.status:"upcoming";return {status,signature:String(raw.signature||""),overall:sanitizePublicPerson(raw.overall),houseLeaders,postsChampion:sanitizePublicPerson(raw.postsChampion),stimaChampion:sanitizePublicPerson(raw.stimaChampion),houseSpirit:sanitizePublicPerson(raw.houseSpirit),extraChampion:sanitizePublicPerson(raw.extraChampion)}}
 function sanitizeSeasonStats(raw){raw=raw&&typeof raw==="object"?raw:{};const cleanMonth=x=>x&&typeof x==="object"?{key:String(x.key||""),label:String(x.label||""),points:numeric(x.points),gap:numeric(x.gap),house:HOUSES[String(x.house||"")]?String(x.house):"",wins:numeric(x.wins)}:null;return {bestMonth:cleanMonth(raw.bestMonth),closestMonth:cleanMonth(raw.closestMonth),monthlyWinner:cleanMonth(raw.monthlyWinner)}}
 function sanitizePublicStats(raw){raw=raw&&typeof raw==="object"?raw:{};const months={};monthDefs(state.yearId).forEach(md=>{months[md.key]=sanitizeMonthlyStats(raw.months&&raw.months[md.key])});return {months,season:sanitizeSeasonStats(raw.season)}}
-function sanitizePublicDoc(raw){raw=raw&&typeof raw==="object"?raw:{};const annual=emptyHouseTotals(),months={};HOUSE_KEYS.forEach(h=>annual[h]=numeric(raw.annual&&raw.annual[h]));monthDefs(state.yearId).forEach(m=>{months[m.key]=emptyHouseTotals();HOUSE_KEYS.forEach(h=>months[m.key][h]=numeric(raw.months&&raw.months[m.key]&&raw.months[m.key][h]))});return {schemaVersion:1,yearId:state.yearId,annual,months,stats:sanitizePublicStats(raw.stats),publishedAt:raw.publishedAt||null}}
+function emptyPublicHouseBreakdown(){return {casualPgs:0,casualPoints:0,competitivePgs:0,competitivePoints:0,median:0,virtual:0,virtualPoints:0,balancedPerformance:0,fantaDirect:0,total:0}}
+function sanitizePublicBreakdowns(raw){raw=raw&&typeof raw==="object"?raw:{};const out={};monthDefs(state.yearId).forEach(m=>{out[m.key]={};HOUSE_KEYS.forEach(h=>{const x=raw[m.key]&&raw[m.key][h]&&typeof raw[m.key][h]==="object"?raw[m.key][h]:{};out[m.key][h]={casualPgs:Math.max(0,parseInt(x.casualPgs,10)||0),casualPoints:numeric(x.casualPoints),competitivePgs:Math.max(0,parseInt(x.competitivePgs,10)||0),competitivePoints:numeric(x.competitivePoints),median:numeric(x.median),virtual:Math.max(0,parseInt(x.virtual,10)||0),virtualPoints:numeric(x.virtualPoints),balancedPerformance:numeric(x.balancedPerformance),fantaDirect:numeric(x.fantaDirect),total:numeric(x.total)}})});return out}
+function sanitizePublicDoc(raw){raw=raw&&typeof raw==="object"?raw:{};const annual=emptyHouseTotals(),months={};HOUSE_KEYS.forEach(h=>annual[h]=numeric(raw.annual&&raw.annual[h]));monthDefs(state.yearId).forEach(m=>{months[m.key]=emptyHouseTotals();HOUSE_KEYS.forEach(h=>months[m.key][h]=numeric(raw.months&&raw.months[m.key]&&raw.months[m.key][h]))});return {schemaVersion:2,yearId:state.yearId,annual,months,breakdowns:sanitizePublicBreakdowns(raw.breakdowns),stats:sanitizePublicStats(raw.stats),publishedAt:raw.publishedAt||null}}
 function statsSignature(rows){const src=JSON.stringify(rows.map(x=>[x.pg,x.house,x.points,x.posts,x.stimaPoints,x.rolePoints,x.extraPoints]));let h=2166136261;for(let i=0;i<src.length;i++){h^=src.charCodeAt(i);h=Math.imul(h,16777619)}return (h>>>0).toString(36)}
 function calculateMonthlyPublicStats(monthKey){
   const people=[];
@@ -658,13 +820,13 @@ function calculatePublicStats(months){
   const winRows=HOUSE_KEYS.map(h=>({house:h,wins:wins[h]})).sort((a,b)=>b.wins-a.wins),maxWins=winRows[0]?.wins||0,monthlyWinner=maxWins>0&&winRows.filter(x=>x.wins===maxWins).length===1?winRows[0]:null;
   return {months:monthly,season:{bestMonth,closestMonth,monthlyWinner}};
 }
-function publicSnapshotFromPrivate(){const annual=calculateAnnual(),months={};monthDefs(state.yearId).forEach(m=>{const calc=calculateMonth(m.key),tot=emptyHouseTotals();HOUSE_KEYS.forEach(h=>tot[h]=numeric(calc.houses[h].total));months[m.key]=tot});return {schemaVersion:1,yearId:state.yearId,annual,months,stats:calculatePublicStats(months)}}
-function publicComparable(data){return JSON.stringify({schemaVersion:1,yearId:state.yearId,annual:(data&&data.annual)||{},months:(data&&data.months)||{},stats:(data&&data.stats)||emptyPublicStats()})}
+function publicSnapshotFromPrivate(){const annual=calculateAnnual(),months={},breakdowns={};monthDefs(state.yearId).forEach(m=>{const calc=calculateMonth(m.key),tot=emptyHouseTotals();breakdowns[m.key]={};HOUSE_KEYS.forEach(h=>{const x=calc.houses[h];tot[h]=numeric(x.total);breakdowns[m.key][h]={casualPgs:x.casualPgs.length,casualPoints:numeric(x.casualPoints),competitivePgs:x.competitivePgs.length,competitivePoints:numeric(x.competitivePoints),median:numeric(calc.median),virtual:numeric(x.virtual),virtualPoints:numeric(x.virtualPoints),balancedPerformance:numeric(x.balancedPerformance),fantaDirect:numeric(x.fantaDirect),total:numeric(x.total)}});months[m.key]=tot});return {schemaVersion:2,yearId:state.yearId,annual,months,breakdowns,stats:calculatePublicStats(months)}}
+function publicComparable(data){return JSON.stringify({schemaVersion:2,yearId:state.yearId,annual:(data&&data.annual)||{},months:(data&&data.months)||{},breakdowns:(data&&data.breakdowns)||{},stats:(data&&data.stats)||emptyPublicStats()})}
 
 /* Lettura pubblica volutamente separata dall'SDK Firestore.
    Nei browser/iframe in cui il canale Firestore resta pendente, fetch REST
    ha un timeout reale e impedisce alla home di fermarsi su “Aggiornamento…”. */
-const PUBLIC_CACHE_PREFIX="ff_coppa_public_v2_",PUBLIC_FETCH_TIMEOUT=7000;
+const PUBLIC_CACHE_PREFIX="ff_coppa_public_v3_",PUBLIC_FETCH_TIMEOUT=7000;
 function publicCacheKey(){return PUBLIC_CACHE_PREFIX+state.yearId}
 function firestoreDecodeValue(v){
   if(!v||typeof v!=="object")return null;
@@ -836,7 +998,8 @@ const HOURGLASS_TOTAL_AREA=hourglassArea(0,100);
 function hourglassFillForRatio(ratio){ratio=Math.max(0,Math.min(1,Number(ratio)||0));if(ratio<=0)return 0;if(ratio>=1)return 100;const target=HOURGLASS_TOTAL_AREA*ratio;let lo=0,hi=100;for(let i=0;i<28;i++){const mid=(lo+hi)/2,area=hourglassArea(100-mid,100);if(area<target)lo=mid;else hi=mid}return Math.round(((lo+hi)/2)*10)/10}
 function hourglassSeasonTarget(yearId,now=new Date()){const start=parseInt(String(yearId).slice(0,4),10);if(!Number.isFinite(start))return 2000;const currentStart=currentSchoolYearStart(now);if(start<currentStart)return 2000;if(start>currentStart)return 1000;const month=now.getMonth()+1;if(month>=9&&month<=11)return 1000;if(month===12||month<=2)return 1500;return 2000}
 function renderLeaderboard(){const annual=(state.publicData&&state.publicData.annual)||emptyHouseTotals(),monthTotals=(state.publicData&&state.publicData.months&&state.publicData.months[state.selectedMonth])||emptyHouseTotals(),ranks=rankings(annual),target=hourglassSeasonTarget(state.yearId),host=$("leaderboard");host.innerHTML="";HOUSE_KEYS.slice().sort((a,b)=>ranks[a]-ranks[b]).forEach(h=>{const x=HOUSES[h],ratio=target>0?numeric(annual[h])/target:0,fill=hourglassFillForRatio(ratio),d=document.createElement("article");d.className="house-card"+(ranks[h]===1?" winner":"");d.style.cssText=houseStyle(h)+`;--fill:${fill}%`;d.innerHTML=`<div class="rank">${ranks[h]}°</div><div class="house-top"><div class="crest"><img src="${x.crest}" alt="Stemma ${x.name}" loading="lazy"></div><div><div class="house-name">${x.name}</div><div class="house-meta">${ranks[h]===1?"In testa alla Coppa":"Classifica annuale"}</div></div></div><div class="house-total">${fmt(annual[h])}</div><div class="house-meta">Punti Casa</div><div class="house-month-chip">${signed(monthTotals[h])} nel mese selezionato</div><div class="hourglass" aria-hidden="true"></div>`;host.appendChild(d)});if(window.parent&&window.parent!==window){const scores={};HOUSE_KEYS.forEach(h=>{scores[h]=fmt(annual[h]);if(HOUSES[h]&&HOUSES[h].name)scores[HOUSES[h].name.toLowerCase()]=fmt(annual[h])});window.parent.postMessage({type:"SYNC_COPPA",scores:scores},"*")}}
-function renderPublicMonth(){const def=monthDefs(state.yearId).find(x=>x.key===state.selectedMonth),totals=(state.publicData&&state.publicData.months&&state.publicData.months[state.selectedMonth])||emptyHouseTotals(),ranks=rankings(totals),host=$("publicMonthRank");$("publicMonthTitle").textContent=def?`Andamento · ${def.label}`:"Andamento del mese";host.innerHTML="";HOUSE_KEYS.slice().sort((a,b)=>ranks[a]-ranks[b]).forEach(h=>{const x=HOUSES[h],e=document.createElement("div");e.className="month-rank-card";e.style.cssText=houseStyle(h);e.innerHTML=`<em>${ranks[h]}°</em><span>${x.name}</span><b>${fmt(totals[h])} punti</b>`;host.appendChild(e)})}
+function renderPublicMonth(){const def=monthDefs(state.yearId).find(x=>x.key===state.selectedMonth),totals=(state.publicData&&state.publicData.months&&state.publicData.months[state.selectedMonth])||emptyHouseTotals(),ranks=rankings(totals),host=$("publicMonthRank");$("publicMonthTitle").textContent=def?`Andamento · ${def.label}`:"Andamento del mese";host.innerHTML="";HOUSE_KEYS.slice().sort((a,b)=>ranks[a]-ranks[b]).forEach(h=>{const x=HOUSES[h],e=document.createElement("div");e.className="month-rank-card";e.style.cssText=houseStyle(h);e.innerHTML=`<em>${ranks[h]}°</em><span>${x.name}</span><b>${fmt(totals[h])} punti</b>`;host.appendChild(e)});renderPublicHouseBreakdown()}
+function renderPublicHouseBreakdown(){const host=$("publicHouseBreakdown"),note=$("publicBreakdownNote");if(!host)return;const month=state.publicData&&state.publicData.breakdowns&&state.publicData.breakdowns[state.selectedMonth];host.innerHTML="";if(!month){if(note)note.textContent="Dettaglio disponibile al prossimo aggiornamento della Coppa";return}const first=month[HOUSE_KEYS[0]]||emptyPublicHouseBreakdown();if(note)note.textContent=`Mediana dei PG Competitivi del mese: ${fmt(first.median)} Punti Casa`;HOUSE_KEYS.forEach(h=>{const x=month[h]||emptyPublicHouseBreakdown(),house=HOUSES[h],e=document.createElement("article");e.className="public-breakdown-card";e.style.cssText=houseStyle(h);e.innerHTML=`<div class="public-breakdown-title"><span class="public-breakdown-crest"><img src="${house.crest}" alt="" loading="lazy"></span><b>${house.name}</b></div><div class="public-breakdown-line"><span>PG Casual</span><strong>${fmt(x.casualPgs)} · ${fmt(x.casualPoints)} pt</strong></div><div class="public-breakdown-line"><span>PG Competitivi reali</span><strong>${fmt(x.competitivePgs)} · ${fmt(x.competitivePoints)} pt</strong></div><div class="public-breakdown-line"><span>PG Competitivi virtuali</span><strong>${fmt(x.virtual)} · ${signed(x.virtualPoints)} pt</strong></div><div class="public-breakdown-line"><span>Totale riequilibrato</span><strong>${fmt(x.balancedPerformance)} pt</strong></div><div class="public-breakdown-line"><span>FantaHogwarts</span><strong>${signed(x.fantaDirect)} pt</strong></div><div class="public-breakdown-line public-breakdown-total"><span>Totale Casa</span><strong>${fmt(x.total)} pt</strong></div>`;host.appendChild(e)})}
 function renderPublicStats(){
   const defs=monthDefs(state.yearId),def=defs.find(x=>x.key===state.selectedMonth),all=(state.publicData&&state.publicData.stats)||emptyPublicStats(),st=(all.months&&all.months[state.selectedMonth])||emptyMonthlyStats(),host=$("publicStats"),seasonHost=$("seasonStats");
   host.innerHTML="";seasonHost.innerHTML="";
