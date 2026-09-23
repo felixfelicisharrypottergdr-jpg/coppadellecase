@@ -1,0 +1,54 @@
+name: Coppa delle Case - aggiornamento gratuito
+on:
+  schedule:
+    # Ogni 5 minuti, sfalsato rispetto al minuto 0 (UTC).
+    - cron: "2/5 * * * *"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: coppa-pubblicazione
+  cancel-in-progress: false
+
+jobs:
+  pubblica:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Controlla la configurazione
+        id: config
+        env:
+          COPPA_SECRET: ${{ secrets.COPPA_FIREBASE_SERVICE_ACCOUNT_JSON }}
+        run: |
+          if [ -z "$COPPA_SECRET" ]; then
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::Pubblicazione disattivata: aggiungi il secret COPPA_FIREBASE_SERVICE_ACCOUNT_JSON nelle impostazioni Actions della repository."
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Scarica il codice
+        if: steps.config.outputs.configured == 'true'
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Prepara Node.js
+        if: steps.config.outputs.configured == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Installa solo Firebase Admin SDK
+        if: steps.config.outputs.configured == 'true'
+        working-directory: automation
+        run: npm install --no-audit --no-fund --ignore-scripts --package-lock=false
+      - name: Esegui test di calcolo
+        if: steps.config.outputs.configured == 'true'
+        working-directory: automation
+        run: npm test
+      - name: Pubblica se i dati sono cambiati
+        if: steps.config.outputs.configured == 'true'
+        working-directory: automation
+        env:
+          COPPA_FIREBASE_SERVICE_ACCOUNT_JSON: ${{ secrets.COPPA_FIREBASE_SERVICE_ACCOUNT_JSON }}
+        run: npm run publish
