@@ -1460,6 +1460,8 @@ function publicComparable(data){const stats=(data&&data.stats)||emptyPublicStats
    Nei browser/iframe in cui il canale Firestore resta pendente, fetch REST
    ha un timeout reale e impedisce alla home di fermarsi su “Aggiornamento…”. */
 const PUBLIC_CACHE_PREFIX="ff_coppa_public_v5_",PUBLIC_FETCH_TIMEOUT=7000;
+const PUBLIC_BACKGROUND_REFRESH_MS=10*60*1000;
+let PUBLIC_LAST_FETCH_AT=Date.now(),PUBLIC_BACKGROUND_FETCHING=false;
 function publicCacheKey(){return PUBLIC_CACHE_PREFIX+state.yearId}
 function firestoreDecodeValue(v){
   if(!v||typeof v!=="object")return null;
@@ -1490,6 +1492,7 @@ async function fetchPublicCupRest(){
 function firebaseErrorLabel(e){const code=String(e&&e.code||"").replace(/^firestore\//,""),msg=String(e&&e.message||"").replace(/\s+/g," ").trim();return [code,msg].filter(Boolean).join(" · ").slice(0,180)||"errore sconosciuto"}
 async function publishPublicSnapshot(force=false){if(!state.authenticated||!state.staffMode)return false;const next=publicSnapshotFromPrivate();if(!force&&publicComparable(next)===publicComparable(state.publicData))return false;await setDoc(publicCupRef(),Object.assign({},next,{publishedAt:serverTimestamp()}));state.publicData=sanitizePublicDoc(next);state.publicLoaded=true;savePublicCache(state.publicData);renderPublic();return true}
 async function loadPublicYear(){
+  PUBLIC_LAST_FETCH_AT=Date.now();
   setConnection("Aggiornamento della Coppa…","warn");
   $("publicDashboard").classList.remove("hidden");
   try{
@@ -1504,6 +1507,33 @@ async function loadPublicYear(){
     if(cached){state.publicData=sanitizePublicDoc(cached.data);state.publicLoaded=true;setConnection("Ultimo aggiornamento disponibile","warn")}
     else{state.publicData=sanitizePublicDoc({});state.publicLoaded=false;setConnection("La Coppa non è disponibile in questo momento","bad")}
     renderPublic();
+  }
+}
+/* Aggiornamento passivo della pagina pubblica: un solo GET del documento
+   della Coppa al massimo ogni 10 minuti, e soltanto se la scheda è visibile.
+   Il pulsante Aggiorna rimane disponibile per una verifica immediata. */
+async function refreshPublicInBackground(){
+  if(document.hidden||state.staffMode||PUBLIC_BACKGROUND_FETCHING||Date.now()-PUBLIC_LAST_FETCH_AT<PUBLIC_BACKGROUND_REFRESH_MS)return;
+  PUBLIC_BACKGROUND_FETCHING=true;
+  PUBLIC_LAST_FETCH_AT=Date.now();
+  const requestedYear=state.yearId;
+  try{
+    const result=await fetchPublicCupRest();
+    if(requestedYear!==state.yearId||!result.exists)return;
+    const next=sanitizePublicDoc(result.data);
+    if(next.publishedAt!==state.publicData?.publishedAt||publicComparable(next)!==publicComparable(state.publicData)){
+      state.publicData=next;
+      state.publicLoaded=true;
+      savePublicCache(next);
+      setConnection("");
+      renderPublic();
+    }
+  }catch(e){
+    // Conserva l'ultima classifica caricata; non mostrare errori invasivi
+    // durante un aggiornamento automatico non richiesto dal visitatore.
+    console.debug("Aggiornamento automatico della Coppa non riuscito:",e);
+  }finally{
+    PUBLIC_BACKGROUND_FETCHING=false;
   }
 }
 function promiseTimeout(promise,ms,label){let timer;return Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error(label||"Operazione scaduta")),ms)})]).finally(()=>clearTimeout(timer))}
@@ -1745,6 +1775,8 @@ $("syncAllBtn").onclick=async()=>{try{await fullSyncFromStudentElves(true)}catch
 $("addPgBtn").onclick=()=>$("addPgOverlay").classList.add("show");$("addPgClose").onclick=()=>$("addPgOverlay").classList.remove("show");$("addPgConfirm").onclick=addManualPg;$("addPgOverlay").onclick=e=>{if(e.target===$("addPgOverlay"))$("addPgOverlay").classList.remove("show")};$("exportBtn").onclick=exportCsv;
 
 setupYears();loadPublicYear();
+window.setInterval(refreshPublicInBackground,60*1000);
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshPublicInBackground()});
 </script>
 </body>
 </html>
