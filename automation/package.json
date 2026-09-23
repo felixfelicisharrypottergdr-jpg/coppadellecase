@@ -1,0 +1,16 @@
+{
+  "name": "felix-coppa-gratis",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Pubblicazione gratuita su GitHub Actions, non utilizza Cloud Functions",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js",
+    "publish": "node publish.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.0.0"
+  }
+}
