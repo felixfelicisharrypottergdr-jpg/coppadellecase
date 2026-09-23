@@ -1778,5 +1778,47 @@ setupYears();loadPublicYear();
 window.setInterval(refreshPublicInBackground,60*1000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden)refreshPublicInBackground()});
 </script>
+
+<!-- Embed responsive: comunica al contenitore l'altezza reale, senza modificare la logica della Coppa. -->
+<script>
+(function () {
+  if (window.parent === window) return;
+  var lastHeight = -1;
+  var queued = false;
+  function reportHeight() {
+    queued = false;
+    var height = Math.ceil(Math.max(
+      document.documentElement.scrollHeight,
+      document.body ? document.body.scrollHeight : 0
+    ));
+    if (!height || height === lastHeight) return;
+    lastHeight = height;
+    window.parent.postMessage({ type: "FELIX_COPPA_RESIZE", height: height }, "*");
+  }
+  function queueReport() {
+    if (queued) return;
+    queued = true;
+    requestAnimationFrame(reportHeight);
+  }
+  window.addEventListener("load", queueReport);
+  window.addEventListener("resize", queueReport);
+  document.addEventListener("click", queueReport);
+  document.addEventListener("transitionend", queueReport);
+  if (window.ResizeObserver && document.body) {
+    var observer = new ResizeObserver(queueReport);
+    Array.from(document.body.children).forEach(function (child) {
+      if (child.tagName !== "SCRIPT" && child.tagName !== "STYLE") observer.observe(child);
+    });
+  }
+  if (window.MutationObserver && document.body) {
+    new MutationObserver(queueReport).observe(document.body, {
+      subtree: true, childList: true, attributes: true,
+      attributeFilter: ["class", "style", "hidden"]
+    });
+  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(queueReport);
+  queueReport();
+})();
+</script>
 </body>
 </html>
