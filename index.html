@@ -1349,6 +1349,60 @@ function rawPostBonusEligible(post,b,posts){if(!post||!rawSafePostLink(post.link
 function rawBonusAltro(post,b,posts){if(!rawPostBonusEligible(post,b,posts))return "";if(b.modalita==="posts"&&b.valore==="variable"){const r=rawUsage(post,b);return b.variabileSu==="altro"&&r?String(r.altro||"").trim():""}return String(b.altro||"").trim()}
 function rawMonthBreakdown(raw,mese){const posts=Array.isArray(mese&&mese.posts)?mese.posts:[],summer=rawSummerKeySet(raw),bonuses=rawAllBonuses(mese),stimaValue=rawMonthStima(raw,mese),band=rawStimaBand(stimaValue),out={posts:0,base:0,stimaValue:stimaValue,stimaLabel:band.label,stimaModifier:band.modifier,stimaPoints:0,stima:0,role:0,manual:0,total:0};let ordinal=0;for(const post of posts){const automatic=!!(rawSchoolMonth(mese)&&post&&rawSafePostLink(post.link)&&!rawPostExcluded(post)&&!rawSpecialPost(post)&&!rawSummerPost(post,summer));if(automatic){ordinal++;out.posts++;out.base+=rawBaseByOrdinal(ordinal);out.stimaPoints+=band.modifier;if(post.houseRoleBonus===true&&post.houseRoleBonusExcluded!==true)out.role+=2}if(!rawSummerPost(post,summer)){for(const b of bonuses)out.manual+=rawHousePointsFromText(rawBonusAltro(post,b,posts))}}for(const b of bonuses){if(b.modalita==="manual"&&b.utilizziManuali>0)out.manual+=Math.max(0,parseInt(b.utilizziManuali,10)||0)*rawHousePointsFromText(b.altro)}out.stima=out.stimaPoints;out.total=out.base+out.stimaPoints+out.role+out.manual;return out}
 function summaryFromStudentDoc(pg,raw){const months={};for(const mese of (Array.isArray(raw&&raw.MESI)?raw.MESI:[])){const key=rawMonthKey(mese&&mese.nome,state.yearId);if(!key)continue;const b=rawMonthBreakdown(raw,mese),prev=months[key]||{posts:0,base:0,stimaValue:b.stimaValue,stimaLabel:b.stimaLabel,stimaModifier:b.stimaModifier,stimaPoints:0,stima:0,role:0,manual:0,total:0};prev.posts+=numeric(b.posts);prev.base+=numeric(b.base);prev.stimaValue=b.stimaValue;prev.stimaLabel=b.stimaLabel;prev.stimaModifier=b.stimaModifier;prev.stimaPoints+=numeric(b.stimaPoints);prev.stima=prev.stimaPoints;prev.role+=numeric(b.role);prev.manual+=numeric(b.manual);prev.total=prev.base+prev.stimaPoints+prev.role+prev.manual;months[key]=prev}return {schemaVersion:1,pgId:pg,schoolYear:state.yearId,updatedAt:raw&&raw._lastModifiedAt||null,months}}
+/* v6.6 — Verifica puntuale Elfo: 1 lettura per click, zero letture periodiche.
+   Espone le ragioni di divergenze fra post visibili, validi, riepilogo e rettifiche. */
+async function verifySingleStudentElfo(pg){
+  if(!state.staffMode||!state.authenticated)return;
+  const year=state.yearId;
+  setSaveStatus(`Verifica Elfo di ${pg}… (1 lettura)`,"warn");
+  let snap;
+  try{snap=await getDoc(doc(db,STUDENT_COLLECTION,pg))}
+  catch(e){console.error("Lettura Elfo per verifica:",e);setSaveStatus(`Impossibile leggere l'Elfo di ${pg}: ${firebaseErrorLabel(e)}`,"bad");return}
+  if(!snap.exists()){
+    alert(`Non trovo un Elfo con ID esattamente «${pg}». Se il nome del documento è differente, usa la risincronizzazione completa una sola volta dalla Gestione Narratore.`);
+    setSaveStatus("Elfo non trovato con ID esatto","warn");return;
+  }
+  const raw=snap.data()||{},fresh=summaryFromStudentDoc(pg,raw),stored=state.docData.summaries[pg],rec=state.docData.roster[pg]||{};
+  const lines=[`VERIFICA ELFO · ${pg} · ${year}`,`Elfo modificato: ${raw._lastModifiedAt&&raw._lastModifiedAt.toDate?raw._lastModifiedAt.toDate().toLocaleString("it-IT"):String(raw._lastModifiedAt||"data non disponibile")}`];
+  let sourceTotal=0,storedTotal=0,excludedTotal=0,rawTotal=0,otherTotal=0;
+  monthDefs(year).forEach(md=>{
+    const source=fresh.months&&fresh.months[md.key],old=stored&&stored.months&&stored.months[md.key],override=monthOverride(pg,md.key),status=statusStateForMonth(rec,md.key);
+    const matching=(Array.isArray(raw.MESI)?raw.MESI:[]).filter(m=>rawMonthKey(m&&m.nome,year)===md.key);
+    const rawPosts=matching.reduce((n,m)=>n+(Array.isArray(m.posts)?m.posts.length:0),0);
+    const excluded=matching.reduce((n,m)=>n+(Array.isArray(m.posts)?m.posts.filter(p=>p&&p.excludedFromProgression===true).length:0),0);
+    const sourceN=numeric(source&&source.posts),storedN=numeric(old&&old.posts);
+    if(!rawPosts&&!sourceN&&!storedN&&!override) return;
+    const other=Math.max(0,rawPosts-excluded-sourceN);
+    rawTotal+=rawPosts;excludedTotal+=excluded;sourceTotal+=sourceN;storedTotal+=storedN;otherTotal+=other;
+    lines.push(``,`${md.label}: ${rawPosts} inseriti − ${excluded} esclusi − ${other} non idonei = ${sourceN} validi`,
+      `Riepilogo Coppa salvato: ${storedN} · Conteggio effettivo: ${effectiveMonthContribution(pg,md.key).posts}`);
+    if(override&&hasOwn(override,"postsValid"))lines.push(`RETTIFICA STAFF ATTIVA: ${override.postsValid} post (non viene rimossa automaticamente)`);
+    if(status.status==="frozen")lines.push(`PG CONGELATO: dal mese ${status.changeKey||"non specificato"}; possono applicarsi i punti fissati al congelamento.`);
+    if(other)lines.push(`Altri esclusi dal calcolo: post senza link valido, post speciali o role estive.`);
+  });
+  lines.push(``,`TOTALE: ${rawTotal} inseriti − ${excludedTotal} esclusi − ${otherTotal} non idonei = ${sourceTotal} validi`,
+    `Feed Coppa salvato: ${storedTotal} validi`);
+  if(!fresh.months||!Object.keys(fresh.months).length){
+    lines.push(`Nessun mese scolastico riconosciuto (Settembre–Giugno dell'anno ${year}).`);
+    alert(lines.join("\n"));setSaveStatus("Verifica: nessun mese scolastico riconosciuto","warn");return;
+  }
+  if(year!==state.yearId){setSaveStatus("Anno scolastico cambiato: ripeti la verifica","warn");return;}
+  const changed=JSON.stringify((stored&&stored.months)||{})!==JSON.stringify(fresh.months);
+  if(!changed){alert(lines.join("\n")+"\n\nIl feed privato è già allineato ai dati dell'Elfo. Se la classifica differisce, controlla le rettifiche e lo stato Congelato.");setSaveStatus(`Elfo di ${pg} verificato: feed già allineato`,"ok");return;}
+  if(!confirm(lines.join("\n")+"\n\nIl feed della Coppa differisce dall'Elfo. Aggiornare SOLO il riepilogo di questo PG? Le rettifiche Staff e i dati degli altri PG restano invariati.")){
+    setSaveStatus("Verifica completata senza modifiche","ok");return;
+  }
+  try{
+    /* setDoc merge:true modifica la sola chiave del PG: nessuna lettura
+       di tutti gli Elfi e nessuna sovrascrittura dei riepiloghi altrui. */
+    const repaired=mergeSyncedStudentSummary(stored,fresh);
+    await setDoc(privateCupRef(),{summaries:{[pg]:repaired}},{merge:true});
+    state.docData.summaries[pg]=repaired;
+    renderStaff();
+    await publishPublicSnapshot(true);
+    setSaveStatus(`Elfo di ${pg} riallineato · registro pubblico aggiornato`,"ok");
+  }catch(e){console.error("Riallineamento Elfo:",e);setSaveStatus(`Riallineamento non riuscito: ${firebaseErrorLabel(e)}`,"bad")}
+}
 function summaryMonthCount(summary){return summary&&summary.months&&typeof summary.months==="object"&&!Array.isArray(summary.months)?Object.keys(summary.months).length:0}
 function mergeSyncedStudentSummary(previous,fresh){
   previous=previous&&typeof previous==="object"?previous:null;
@@ -1746,7 +1800,7 @@ function renderPgTable(){
     const htd=document.createElement("td");htd.appendChild(houseSelect(pg,house));tr.appendChild(htd);
     const std=document.createElement("td");std.appendChild(statusSelect(pg,"active",!!house));tr.appendChild(std);
     appendPgDataCells(tr,m,ov,adj);
-    const act=document.createElement("td"),wrap=document.createElement("div");wrap.className="row-actions";const bc=document.createElement("button");bc.className="btn small override";bc.textContent=ov.any?"✎ Rettifica":"✎ Correggi dati";bc.onclick=()=>openOverride(pg);const br=document.createElement("button");br.className="btn small primary";br.textContent="＋ Punti Casa";br.onclick=()=>openAdjust(pg,"role_spesa");wrap.append(bc,br);act.appendChild(wrap);tr.appendChild(act);body.appendChild(tr);activeShown++;
+    const act=document.createElement("td"),wrap=document.createElement("div");wrap.className="row-actions";const bc=document.createElement("button");bc.className="btn small override";bc.textContent=ov.any?"✎ Rettifica":"✎ Correggi dati";bc.onclick=()=>openOverride(pg);const bv=document.createElement("button");bv.className="btn small ghost";bv.textContent="↻ Verifica Elfo";bv.title="Legge solo questo Elfo (1 lettura Firebase) e confronta i post validi con la Coppa";bv.onclick=()=>verifySingleStudentElfo(pg);const br=document.createElement("button");br.className="btn small primary";br.textContent="＋ Punti Casa";br.onclick=()=>openAdjust(pg,"role_spesa");wrap.append(bv,bc,br);act.appendChild(wrap);tr.appendChild(act);body.appendChild(tr);activeShown++;
   });
   if(!activeShown){const tr=document.createElement("tr");tr.innerHTML='<td colspan="14" style="text-align:center;padding:22px;color:#756a58">Nessun PG attivo corrisponde ai filtri.</td>';body.appendChild(tr)}
   if(!frozenShown){const tr=document.createElement("tr");tr.innerHTML='<td colspan="5" class="frozen-empty">Nessun PG congelato corrisponde ai filtri.</td>';frozenBody.appendChild(tr)}
